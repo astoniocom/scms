@@ -230,3 +230,7 @@ msgstr "Страница настроек"
 #: .\models\pageadmin.py:87
 msgid "Additional"
 msgstr "Дополнительно"
+
+#: .\admin\actions.py:47
+msgid "Copy selected"
+msgstr "Скопировать выбранные"

@@ -1,4 +1,4 @@
-#encoding: utf-8
+# encoding: utf-8
 import re
 import scms
 from django.template import Library
@@ -50,7 +50,7 @@ class GetpagesNode(Node):
                 filter_vars[key] = new_value and new_value or value.token
             else:
                 filter_vars[key] = value
-
+    
         p = Page()
         page_id = 'page_id' in context and context['page_id'] or 0 # На случай, если PageNotFound and raist Http404
         context[self.var] = p.get_pages(context.get('request'), page_id, self.order, self.page, self.perpage, language=None, filter_vars=filter_vars )
@@ -285,9 +285,65 @@ def intspace(value):
 intspace.is_safe = True
 register.filter(intspace)
 
+@register.filter()
+def split(text, splitter=' '):
+    if not text:
+        text = ''
+    text = text.split(splitter)
+    return text
+
+@register.filter()
+def pop(arr):
+    return arr.pop()
+
+from django.conf import settings
+
+from PIL import Image, ImageDraw, ImageFont
+import os
+import hashlib
+
+@register.simple_tag
+def txt2img(*args, **kwargs):
+    #{% txt2img 'Код.' cp.field_catitem_code.0.body fontsize=14 reload=True bg="#eee" color="#444" format="png" sep="" %}
+    sep = kwargs.get('sep', " ")
+    text = u"%s" % sep.join(args)
+    #text.encode('cp1251')
+    #text = text.decode('cp1251')
+    fontsize = kwargs.get('fontsize', 14)
+    bg = kwargs.get('bg', "#ffffff")
+    color = kwargs.get('color', "#000000")
+    font = kwargs.get('font', "tahoma.ttf")
+    #font = kwargs.get('font', "DejaVuSans.ttf")
+    format = kwargs.get('format', "jpeg")
+    quality = kwargs.get('quality', "100")
+    height = kwargs.get('height', 16)
+    img_dir = settings.MEDIA_ROOT + "/txt2img/"
+    img_name_temp = text + "-" + bg.strip("#") + "-" + color.strip("#") + "-" + str(fontsize)
+    hash = hashlib.sha1(img_name_temp.encode('utf-8')).hexdigest()
+    img_subdir = "%s/%s/" % (hash[0:2], hash[2:4])
+    img_name = "%s.%s" % (hash, format)
+    if not os.path.exists(img_dir + img_subdir): 
+        os.makedirs(img_dir + img_subdir)
+    if os.path.exists(img_dir + img_subdir + img_name) and not kwargs.get('reload'):
+        pass
+    else:   
+        font_size = fontsize
+        fnt = ImageFont.truetype(img_dir + font, int(font_size))
+        w, h= fnt.getsize(text)
+        img = Image.new('RGBA', (w, height), bg)
+        draw = ImageDraw.Draw(img)
+        draw.fontmode = "0" 
+        draw.text((0,0), text, font=fnt, fill=color)
+        img.save(img_dir + img_subdir + img_name, format=format, quality=quality)  
+    imgtag = '%stxt2img/%s/%s' % (settings.MEDIA_URL, img_subdir, img_name)
+    return imgtag
+
 @register.filter(name='custom_app_label')
 @stringfilter
 def custom_app_label(value):
+    '''
+    Русификация админки
+    '''
     custom_app_labels = {
         'Auth': 'Полномочия',
         'Scms': 'Структура',

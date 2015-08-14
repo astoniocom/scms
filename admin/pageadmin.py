@@ -41,14 +41,15 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import get_language
 from django.utils.encoding import force_text
 from django.contrib.auth.models import User
+from scms.admin.actions import copy_page
 
 
 csrf_protect_m = method_decorator(csrf_protect)
-
 class PageAdmin(admin.ModelAdmin):
     slug_model = Slugs
-    save_as = False # !!!
-    actions = [actions.delete_selected,]
+    save_as = True
+    # save_as = False # !!!
+    actions = [actions.delete_selected, actions.copy_selected]
     form = PageForm
     declared_fieldsets = []
     
@@ -106,7 +107,7 @@ class PageAdmin(admin.ModelAdmin):
             manager = User.objects.get(pk=2)
             form.base_fields['authors'].initial.append(manager.pk)
         except User.DoesNotExist:
-    	    pass
+            pass
         
         return form
         
@@ -144,6 +145,7 @@ class PageAdmin(admin.ModelAdmin):
         opts = model._meta
 
         obj = self.get_object(request, unquote(object_id))
+            
 
         if not self.has_change_permission(request, obj):
             messages.warning(request, _("You have no permissions to change %(name)s") % {"name": obj})
@@ -158,10 +160,8 @@ class PageAdmin(admin.ModelAdmin):
         
         request.scms['page_type'] = obj.type
         request.scms['page'] = obj
-        #request.change_page = obj #TODO!!!! Например используется w Tinymce плугине (удалил из плагина)
-
-        if request.method == 'POST' and "_saveasnew" in request.POST:
-            raise PermissionDenied
+        #if request.method == 'POST' and "_saveasnew" in request.POST:
+            #raise PermissionDenied
             # Не реализовано
             #if not request.user.is_superuser and 'create' in scms.site.get_content_type(obj.type).permissions:
             #    return self.add_view(request, form_url='../add/%s' %  obj.type, current_app=self.admin_site.name)
@@ -188,8 +188,11 @@ class PageAdmin(admin.ModelAdmin):
                 formsets.append(formset)
 
             if all_valid(formsets) and form_validated:
-                self.save_model(request, new_object, form, True)
+                if "_saveasnew" in request.POST:
+                    new_object = copy_page(new_object)
+
                 self.save_related(request, form, formsets, True)
+                self.save_model(request, new_object, form, True)
                 change_message = self.construct_change_message(request, form, formsets)
                 self.log_change(request, new_object, change_message)
                 response = self.response_change(request, new_object) # стандартный обработчик
@@ -244,6 +247,7 @@ class PageAdmin(admin.ModelAdmin):
 
         context = self.update_language_tab_context(request, None, context)
         context.update(extra_context or {})
+
         return self.render_change_form(request, context, change=True, obj=obj, form_url=form_url)
     
     @csrf_protect_m    
@@ -366,6 +370,7 @@ class PageAdmin(admin.ModelAdmin):
         return to_return   
     
     def save_model(self, request, obj, form, change):
+        # import debug
         form.save()
         
     def has_add_permission(self, request, parent_page=None, type=None):

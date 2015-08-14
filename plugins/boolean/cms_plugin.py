@@ -3,4 +3,6 @@ from models import Boolean
 
 class BooleanPlugin(SCMSPluginBase):
     model = Boolean
-    
+	
+
+        
