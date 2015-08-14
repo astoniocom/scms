@@ -1,0 +1,35 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% block object-tools %}
+	{% if show_language_tabs %}
+		<ul class="object-tools" style="float: none; display: inline; line-height: 30px;">
+		{% for lang_code, lang_name in traduction_language %}
+			<li><a href="?language={{lang_code}}&{{ langgetvars }}" {% if not language == lang_code %}style="font-weight: normal;"{% endif %}>{% if language == lang_code %}<{% endif %} {{lang_name}} {% if language == lang_code %}>{% endif %}</a></li> 
+		{% endfor %}
+		</ul>
+		<br clear="all">
+	{% endif %}
+
+	{% if not is_popup %}{% if change %}
+	  <ul class="object-tools">
+      <li><a href="{% if destination %}{{ destination }}{% else %}../{% endif %}" class="backlink">< {% trans "Back" %}</a></li>
+      {% block object-tools-items %}
+      <li>
+        {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+        <a href="{% add_preserved_filters history_url %}" class="historylink">{% trans "History" %}</a>
+      </li>
+      {% if view_path %}<li><a href="{{ view_path }}" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+      {% endblock %}
+	  </ul>
+	{% else %}
+	  <ul class="object-tools">
+	  <li><a href="{% if destination %}{{ destination }}{% else %}../{% endif %}" class="backlink">< {% trans "Back" %}</a></li>
+	  </ul>
+	{% endif %}{% endif %}
+{% endblock %}
+
+
+{% block breadcrumbs %}
+  {% include "admin/scms/page/breadcrumbs.html" %}
+{% endblock %}

@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-03 16:11+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .\admin.py:36
+msgid "Advanced options"
+msgstr "Дополнительные опции"
+
+#: .\forms.py:35
+msgid "Add Another"
+msgstr "Добавить еще"
+
+#: .\forms.py:87
+#, python-format
+msgid ""
+"Value \"%(value)s\" cannot be selected since it belongs to other vocabulary "
+"(%(voc)s)"
+msgstr ""
+"Значение \"%(value)s\" не может быть выбрано, так как относится к другому словарю "
+"(%(voc)s)"
+
+#: .\forms.py:91
+#, python-format
+msgid ""
+"Value \"%(value)s\" cannot be selected since it belongs to other language (%"
+"(lang)s)"
+msgstr ""
+"Значение \"%(value)s\" не может быть выбрано, так как относится к другому языку (%"
+"(lang)s)"
+
+#: .\models.py:8 .\models.py:9
+msgid "Taxonomy"
+msgstr "Таксономия"
+
+#: .\models.py:12
+msgid "Vocabulary"
+msgstr "Словарь"
+
+#: .\models.py:13
+msgid "Name"
+msgstr "Имя"
+
+#: .\models.py:14
+msgid "Description"
+msgstr "Описание"
+
+#: .\models.py:15
+msgid "Language"
+msgstr "Язык"
+
+#: .\models.py:16
+msgid "Weight"
+msgstr "Вес"
+
+#: .\models.py:19
+msgid "Term"
+msgstr "Термин"
+
+#: .\models.py:20
+msgid "Terms"
+msgstr "Термины"

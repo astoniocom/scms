@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load url from future %}
+{% load admin_urls scms_tags %}
+
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a> 
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ app_label|capfirst|custom_app_label }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst|escape }}</a>
+  {% for p in breadcrumbs %}
+      {% if not forloop.last or add or deletable_objects %}
+        &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}?parent__id__exact={{ p.id }}">{{ p.title }}</a> 
+      {% else %}
+        {% if not deleted_objects %}
+          &rsaquo; {{ p.title }}
+        {% else %}
+          &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}{{ object.pk }}/">{{ object|truncatewords:"18" }}</a>   
+        {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if add %}&rsaquo; {% trans "Add" %} {{ opts.verbose_name }}{% endif %}
+  {% if deleted_objects %}&rsaquo; {% trans 'Delete' %}{% endif %}
+  {% if deletable_objects %}&rsaquo; {% trans 'Delete multiple objects' %}{% endif %}
+
+
