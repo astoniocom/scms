@@ -157,7 +157,7 @@ class PageAdmin(admin.ModelAdmin):
         
         if obj is None:
             raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_text(opts.verbose_name), 'key': escape(object_id)})
-        
+
         request.scms['page_type'] = obj.type
         request.scms['page'] = obj
         #if request.method == 'POST' and "_saveasnew" in request.POST:

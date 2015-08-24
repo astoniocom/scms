@@ -302,6 +302,14 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import hashlib
 
+@register.filter()
+def debug(obj, *args, **kwargs):
+    '''
+    Функция debug
+    '''
+    import debug
+    return obj
+
 @register.simple_tag
 def txt2img(*args, **kwargs):
     #{% txt2img 'Код.' cp.field_catitem_code.0.body fontsize=14 reload=True bg="#eee" color="#444" format="png" sep="" %}

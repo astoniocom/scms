@@ -105,9 +105,10 @@ class SCMSPluginBase(InlineModelAdmin):
         """
         Добавляет переменные в контекст отображения
         """
+
         results = SortedDict()
         try:
-            values = self.model.objects.filter(page=page, language=language, field_name=self.name).order_by('weight').select_related() #t
+            values = self.model.objects.filter(page=page, language=language, field_name=self.name).order_by('weight')#.select_related() #t
             key = 0
             for value in values:
                 results[key] = {}

@@ -49,7 +49,7 @@ def scms_render(request, alias=''):
     try:
         if alias:
             #slug = Slugs.objects.get(alias__regex=r'^[\*]?/%s$' % alias, language=lang)
-            slug = Slugs.objects.get(Q(alias='*/%s' % alias) | Q(alias='/%s' % alias), language=lang, page__published=True)
+            slug = Slugs.objects.get(Q(alias='*/%s' % alias) | Q(alias='/%s' % alias), language=lang) #, page__published=True)
             is_front = False
             
             # Чтобы главная страница не дублировалась с двумя адресами
@@ -62,6 +62,10 @@ def scms_render(request, alias=''):
         raise Http404()
     except Slugs.MultipleObjectsReturned:
         raise Http404('Exception: Slugs.MultipleObjectsReturned')
+
+    if not slug.page.published and alias != 'search':
+        raise Http404()
+
     try:
         cp = Page(id=slug.page_id).full_load(request=request, only_cached=False) # объект текущей страницы
     except Page.DoesNotExist:

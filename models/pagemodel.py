@@ -159,16 +159,38 @@ class Page(models.Model):
                     
                 except IndexError:
                     return None
-                
                 # Формирование полей
                 page.fields = SortedDict()
+
+                class FieldData(dict):
+                    '''
+                    Класс для данных из полей
+                    '''
+                    def __iter__(self):
+                        for i in self['values']:
+                            yield self['values'][i]
+
+                    def __unicode__(self):
+                        attrs = ['body', 'data', 'link']
+
+                        if len(self['values']) > 0:
+                            for a in attrs:
+                                if a in self['values'][0]:
+                                    return self['values'][0][a]
+
+
                 # Обращаемся к каждому плагину, чтобы тот встраивал данные в контекст, которые кешируются
                 for field_obj in scms.site.get_content_type(page.type).get_fields(page):
                     values_lang = field_obj.lang_depended and lang or '' # Определяем язык для получения значений
                     
-                    field_data = {}
+                    field_data = FieldData()
                     field_data['plugin'] = field_obj
                     field_data['values'] = field_obj.get_context(page, values_lang) # Получаем значения
+                    if field_data['values']:
+                        # пусть из первого поля будут в параметре
+                        for k,v in zip(field_data['values'][0], field_data['values'][0].values()):
+                            field_data[k] = v
+
                     field_data.update(field_data['values']) # Сцелью доступность без использование values, values использовать для for
                     field_data['type'] = field_obj.__class__.__name__ # Сохраняем тип поля
                     
@@ -176,9 +198,9 @@ class Page(models.Model):
                     
                     setattr(page, field_obj.name, field_data) # Добавляем в атрибуты объекта
                     page.fields[field_obj.name] = field_data # Добавляем в словарь, чтобы можно было в темплейтах делать перечисление полей
-                
+
                 # Формирование родителей
-                parents =  page.get_ancestors(ascending=False).filter(slugs__language='%s'%lang).extra(select={
+                parents =  page.get_ancestors(ascending=False).filter(slugs__language='%s' % lang).extra(select={
                     'title': '`scms_slugs`.`title`', 
                     'alias': 'IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*",""))' % page_state.MAIN,
                     'link': 'CONCAT("%s", IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*","")))' % (lang_prefix, page_state.MAIN),
