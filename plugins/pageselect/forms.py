@@ -8,5 +8,5 @@ class PageSelectForm(forms.ModelForm):
 
     class Meta:
         model = PageSelect
-
+        fields = "__all__"
 

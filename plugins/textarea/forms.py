@@ -1,7 +1,7 @@
 # coding=utf-8
 from models import TextArea
 from django import forms
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 
 class TextAreaForm(forms.ModelForm):

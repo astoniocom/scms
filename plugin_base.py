@@ -4,7 +4,7 @@ from django.contrib.admin.options import InlineModelAdmin
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from scms.utils import get_language_from_request
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
 
 class SCMSPluginBase(InlineModelAdmin):
     fk_name = 'page'
@@ -69,6 +69,7 @@ class SCMSPluginBase(InlineModelAdmin):
             self.exclude = self.exclude and self.exclude+['weight'] or ['weight']
 
     def get_plugin_formset(self, request, obj=None, instance=None, **kwargs):
+        # import debug
         FormSet = self.get_formset(request, obj, **kwargs)
         language = self.lang_depended and get_language_from_request(request, None) or ''
         FormSet._queryset = self.model.objects.filter(language=language, page=instance, field_name=self.name).order_by('weight') # Фильтр на каком основании брать данные для полей плагина
@@ -106,7 +107,7 @@ class SCMSPluginBase(InlineModelAdmin):
         Добавляет переменные в контекст отображения
         """
 
-        results = SortedDict()
+        results = OrderedDict()
         try:
             values = self.model.objects.filter(page=page, language=language, field_name=self.name).order_by('weight')#.select_related() #t
             key = 0

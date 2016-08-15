@@ -13,7 +13,7 @@ class Terms(models.Model):
     name = models.CharField(_("Name"), max_length=64, blank=False, db_index=False)
     description = models.CharField(_("Description"), max_length=256, blank=True, db_index=False)
     language = models.CharField(_("Language"), max_length=5, blank=True, db_index=True)
-    weight = models.IntegerField(_("Weight"), max_length=4, blank=True, db_index=True, default=0)
+    weight = models.IntegerField(_("Weight"), blank=True, db_index=True, default=0)
 
     class Meta:
         verbose_name = _('Term')

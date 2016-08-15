@@ -1,11 +1,10 @@
 {% load i18n %}
-{% load url from future %}
-{% load admin_urls scms_tags %}
+{% load admin_urls scms_tags scmsadmin_list %}
 
 <div class="breadcrumbs">
-  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a> 
-  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ app_label|capfirst|custom_app_label }}</a>
-  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst|escape }}</a>
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  {# &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ app_label|capfirst|custom_app_label }}</a> #}
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst|escape|custom_app_label }}</a>
   {% for p in breadcrumbs %}
       {% if not forloop.last or add or deletable_objects %}
         &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}?parent__id__exact={{ p.id }}">{{ p.title }}</a> 
@@ -20,5 +19,4 @@
   {% if add %}&rsaquo; {% trans "Add" %} {{ opts.verbose_name }}{% endif %}
   {% if deleted_objects %}&rsaquo; {% trans 'Delete' %}{% endif %}
   {% if deletable_objects %}&rsaquo; {% trans 'Delete multiple objects' %}{% endif %}
-
-
+</div>

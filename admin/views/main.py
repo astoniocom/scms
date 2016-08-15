@@ -27,8 +27,8 @@ class SCMSChangeList(main.ChangeList):
         else:
             return adminlist_ordering 
     
-    def get_query_set(self, request):
-        qs = super(SCMSChangeList, self).get_query_set(request)
+    def get_queryset(self, request):
+        qs = super(SCMSChangeList, self).get_queryset(request)
         
         
         page_table_name = self.model._meta.db_table

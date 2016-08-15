@@ -10,12 +10,12 @@ from django.forms.widgets import Textarea
 
 class SCMSTinyMCEWidget(AdminTinyMCE):
     def __init__(self, attrs=None, page_id=None):
-        super(SCMSTinyMCEWidget, self).__init__(attrs)
+        super(SCMSTinyMCEWidget, self).__init__(attrs=attrs)
         self.page_id = page_id
         
     def render(self, name, value, attrs=None):
         from django.core import urlresolvers
-        fb_url = urlresolvers.reverse('fb_browse', current_app='filebrowser')
+        fb_url = urlresolvers.reverse('fb_browse')
         
         # Определяем значение переменной для js-кода, содержащее значение папки страницы по умаолчанию
         from scms.utils import build_page_folder_path
@@ -71,7 +71,7 @@ class SCMSTinyMCEWidget(AdminTinyMCE):
         </script>
         """.replace('_page_folder_js_', page_folder_js).replace('_files_folder_js_', files_folder_js).replace('_fb_url_', fb_url)
         
-        result = super(SCMSTinyMCEWidget, self).render(name, value, attrs)
+        result = super(SCMSTinyMCEWidget, self).render(name, value, attrs=attrs)
         return mark_safe(filebrowser_js + unicode(result).replace('djangoFileBrowser', 'djangoTinyBrowser') )
 
 
@@ -102,8 +102,8 @@ class TinyMCEPlugin(SCMSPluginBase):
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'body':
             if self.is_show:
-                return forms.CharField(label=_("Text"), widget=SCMSTinyMCEWidget({'style': 'width: 100%', 'rows': self.rows}, page_id=kwargs['request'].scms['page'].id), required=False)
+                return forms.CharField(label=_("Text"), widget=SCMSTinyMCEWidget(attrs={'style': 'width: 100%', 'rows': self.rows}, page_id=kwargs['request'].scms['page'].id), required=False)
             else:
-                return forms.CharField(label=_("Text"), widget=Textarea({'style': 'width: 100%', 'rows': self.rows}), required=False)
+                return forms.CharField(label=_("Text"), widget=Textarea(attrs={'style': 'width: 100%', 'rows': self.rows}), required=False)
         return super(TinyMCEPlugin, self).formfield_for_dbfield(db_field, **kwargs)
         

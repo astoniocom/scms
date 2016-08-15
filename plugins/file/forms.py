@@ -1,7 +1,7 @@
 # coding=utf-8
 from models import File
 from django import forms
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 
 class FileForm(forms.ModelForm):
@@ -9,6 +9,7 @@ class FileForm(forms.ModelForm):
     
     class Meta:
         model = File
+        fields = "__all__"
         
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
              initial=None, error_class=ErrorList, label_suffix=':',

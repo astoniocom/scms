@@ -1,7 +1,7 @@
 from scms.plugin_base import SCMSPluginBase
 from models import SEO
 from django.forms.models import ModelForm
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 
 class SEOPluginModelForm(ModelForm):
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
@@ -16,7 +16,8 @@ class SEOPluginModelForm(ModelForm):
         
 class SEOPlugin(SCMSPluginBase):
     model = SEO
-    template = 'admin/scms/page/edit_inline/stacked_1.html'
+    # template = 'admin/scms/page/edit_inline/stacked_1.html'
+    template = 'admin/edit_inline/stacked.html'
     form = SEOPluginModelForm
 
 

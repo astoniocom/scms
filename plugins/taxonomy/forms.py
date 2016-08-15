@@ -1,7 +1,7 @@
 # coding=utf-8
 from models import Terms
 from django import forms
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.forms.widgets import Select, SelectMultiple
@@ -40,6 +40,7 @@ class TaxonomyForm(forms.ModelForm):
     #terms = forms.ModelMultipleChoiceField(label=_("Terms"), widget=RelatedFieldWidgetWrapper())
     class Meta:
         model = Terms
+        fields = "__all__"
         
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
                 initial=None, error_class=ErrorList, label_suffix=':',
@@ -68,7 +69,7 @@ class TaxonomyForm(forms.ModelForm):
             widget_wrapped = SCMSRelatedFieldWidgetWrapper(widget, old_widget.rel, old_widget.admin_site, self.admin_field.vocabulary, language)
             self.fields['terms'] = ModelChoiceField(queryset, required=False, widget=widget_wrapped)
             try: # Определяем значение по умолчанию -- первое в списке значений
-                initial = instance.terms.get_query_set()[0].id
+                initial = instance.terms.get_queryset()[0].id
             except:
                 initial = None
             self.initial['terms'] = initial

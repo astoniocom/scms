@@ -7,7 +7,7 @@
 # Проверка алиасов при сохранении/изменении страницы на совпадение с url.py. Если совпадает, не разрешать сохранять алиас. (files раздел и папка)
 from scms.admin.forms import PageForm
 from django.contrib import admin
-from scms.models import Page, Slugs, page_state
+from scms.models import Page, Slugs, page_state, MongoManager
 from functools import update_wrapper
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.admin import helpers
@@ -20,11 +20,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.forms.formsets import all_valid
-from django.contrib.admin.util import unquote
+from django.contrib.admin.utils import unquote
 from django.core.exceptions import PermissionDenied
 from django.utils.html import escape
 from scms.utils.i18n import get_default_language
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.http import urlquote
 from scms.utils import get_destination
 from django.utils.decorators import method_decorator
@@ -33,15 +33,17 @@ from django.db import transaction
 import scms
 from scms.admin.widgets import CMSForeignKeyRawIdWidget
 from urlparse import urljoin
-from django.contrib.admin.util import flatten_fieldsets
+from django.contrib.admin.utils import flatten_fieldsets
 from scms.admin import actions
-from django.contrib.admin.util import lookup_field, display_for_field
+from django.contrib.admin.utils import lookup_field, display_for_field
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language
 from django.utils.encoding import force_text
 from django.contrib.auth.models import User
 from scms.admin.actions import copy_page
+
+IS_POPUP_VAR = '_popup'
 
 
 csrf_protect_m = method_decorator(csrf_protect)
@@ -65,15 +67,15 @@ class PageAdmin(admin.ModelAdmin):
                 return self.admin_site.admin_view(view)(request, *args, **kwargs)
             return update_wrapper(wrapper, view)
 
-        info = self.model._meta.app_label, self.model._meta.module_name
+        info = self.model._meta.app_label, self.model._meta.model_name
 
-        urlpatterns = patterns('',
+        urlpatterns = [
             url(r'^$', wrap(self.changelist_view), name='%s_%s_changelist' % info),
             url(r'^add/$', wrap(self.add_view), name='%s_%s_add' % info),  
             url(r'^(.+)/history/$', wrap(self.history_view), name='%s_%s_history' % info),
             url(r'^(.+)/delete/$', wrap(self.delete_view), name='%s_%s_delete' % info),
             url(r'^(.+)/$', wrap(self.change_view), name='%s_%s_change' % info),
-        )
+        ]
         # Add in each model's views.
         #for key, obj in scms.site.get_content_type().iteritems():
         #    urlpatterns += patterns('',
@@ -87,16 +89,17 @@ class PageAdmin(admin.ModelAdmin):
         return super(PageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     def get_form(self, request, obj=None, **kwargs):
+        # import debug
         if obj and obj.state == page_state.SETTINGS:
             if request.user.is_superuser:
-                self.declared_fieldsets = ([_('Additional'), {'classes': ('collapse',), 'fields': ('title', 'authors', 'state', 'type')}],)
+                self.fieldsets = ([_('Additional'), {'classes': ('collapse',), 'fields': ('title', 'authors', 'state', 'type')}],)
             else:
-                self.declared_fieldsets = ([_('Additional'), {'classes': ('collapse',), 'fields': ('title', 'authors', 'type'         )}],)
+                self.fieldsets = ([_('Additional'), {'classes': ('collapse',), 'fields': ('title', 'authors', 'type'         )}],)
         else:    
             if request.user.is_superuser:
-                self.declared_fieldsets = ([None, {'fields': ('parent', 'title', 'slug')}], [_('Advanced options'), {'classes': ['collapse'], 'fields': (('published', 'hidden', 'expanded', 'state'), 'date', 'alias', 'authors', 'type'), }])
+                self.fieldsets = ([None, {'fields': ('parent', 'title', 'slug')}], [_('Advanced options'), {'classes': ['collapse'], 'fields': (('published', 'hidden', 'expanded', 'state'), 'date', 'alias', 'authors', 'type'), }])
             else:
-                self.declared_fieldsets = ([None, {'fields': ('parent', 'title', 'slug')}], [_('Advanced options'), {'classes': ['collapse'], 'fields': (('published', 'hidden', 'expanded',        ), 'date', 'alias', 'authors', 'type'), }])                
+                self.fieldsets = ([None, {'fields': ('parent', 'title', 'slug')}], [_('Advanced options'), {'classes': ['collapse'], 'fields': (('published', 'hidden', 'expanded',        ), 'date', 'alias', 'authors', 'type'), }])                
             
         
         form = super(PageAdmin, self).get_form(request, obj, **kwargs)
@@ -138,6 +141,7 @@ class PageAdmin(admin.ModelAdmin):
     @csrf_protect_m
     @transaction.atomic
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        # import debug
         tab_language = get_language_from_request(request, None)
                                    
         "The 'change' admin view for this model."
@@ -152,7 +156,7 @@ class PageAdmin(admin.ModelAdmin):
             if request.GET.get('destination'):
                 dest_url = self.parse_destination(request, obj)
             else:
-                dest_url = reverse('admin:%s_%s_changelist' % (opts.app_label, opts.module_name),  current_app=self.admin_site.name)
+                dest_url = reverse('admin:%s_%s_changelist' % (opts.app_label, opts.model_name),  current_app=self.admin_site.name)
             return HttpResponseRedirect(dest_url)
         
         if obj is None:
@@ -234,7 +238,7 @@ class PageAdmin(admin.ModelAdmin):
             'adminform': adminForm,
             'object_id': object_id,
             'original': obj,
-            'is_popup': "_popup" in request.REQUEST,
+            'is_popup': "_popup" in request.GET or "_popup" in request.POST,
             'media': media,
             'inline_admin_formsets': inline_admin_formsets,
             'errors': helpers.AdminErrorList(form, formsets),
@@ -242,6 +246,7 @@ class PageAdmin(admin.ModelAdmin):
             #TODO!!!'root_path': self.admin_site.root_path,
             'view_path': fullobj and fullobj.link or None ,
             'destination': self.parse_destination(request, obj),
+            'has_permission': True,
             'breadcrumbs': self.model(id=obj.parent_id).full_load().parents + [obj.full_load()],
         }
 
@@ -262,13 +267,18 @@ class PageAdmin(admin.ModelAdmin):
         except (ValueError, TypeError, self.model.DoesNotExist):
             request.scms['page'] = self.model(id=None).full_load()
         request.scms['page_type'] = request.scms['page'].type
-        
-        extra_context.update({
-            'parent_id': parent_id,
-            'destination': get_destination(request),
-            'breadcrumbs': self.model(id=parent_id).full_load().parents,
-            'opts': self.model._meta, # для темплэйта breadcrumbs.html
-        })
+        parent = self.model(id=parent_id).full_load()
+        try:        
+            extra_context.update({
+                'parent_id': parent_id,
+                'destination': get_destination(request),
+                'breadcrumbs': self.model(id=parent_id).full_load().parents,
+                'opts': self.model._meta, # для темплэйта breadcrumbs.html
+            })
+        except:
+            pass
+            # import debug
+        parent = self.model(id=parent_id).full_load()
 
         parent_content_type = scms.site.get_content_type(request.scms['page_type'])
 
@@ -312,6 +322,9 @@ class PageAdmin(admin.ModelAdmin):
         class ChangelistModelForm(ModelForm):
             plugin_fields = scms.site.get_content_type(request.scms['page_type']).get_changelist_fields()
             formfield_for_dbfield = self.formfield_for_dbfield
+    
+            class Meta:
+                fields = "__all__"
 
             def __init__(self, instance=None, **kwargs ):
                 super(ChangelistModelForm, self).__init__(instance=instance, **kwargs)
@@ -396,7 +409,7 @@ class PageAdmin(admin.ModelAdmin):
                 perm_obj = parent_page.type != 'root' and parent_page or self.model.objects.filter(state=page_state.SETTINGS)[0]
             except:
                 return True # если нет настроек, тогда, разрешаем добавлять всё
-            if not perm_obj.get_ancestors().filter(authors=request.user.id) and request.user not in perm_obj.authors.get_query_set():
+            if not perm_obj.get_ancestors().filter(authors=request.user.id) and request.user not in perm_obj.authors.get_queryset():
                 return False
         
         return super(PageAdmin, self).has_add_permission(request)
@@ -412,9 +425,15 @@ class PageAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         if obj:
             protacted_states = [page_state.LOCK_DELETION, page_state.MAIN, page_state.SETTINGS]
-            if (not obj.get_ancestors().filter(authors=request.user.id) and request.user not in obj.authors.get_query_set() and not request.user.is_superuser) or \
-               (obj.get_children().filter(state__in=protacted_states) or obj.state in protacted_states):
-                return False  
+            if isinstance(obj, (Page, Slugs)):
+                if (not obj.get_ancestors().filter(authors=request.user.id) and not request.user.is_superuser) or \
+                   (obj.get_children().filter(state__in=protacted_states) or obj.state in protacted_states):
+                   # request.user not in obj.authors.get_queryset() and
+                    return False  
+            elif isinstance(obj, (MongoManager)):
+                if not request.user.id in obj.authors or not request.user.is_superuser:# or \
+                   # (obj.get_children().filter(state__in=protacted_states) or obj.state in protacted_states):
+                    return False  
             
         return super(PageAdmin, self).has_delete_permission(request, obj)
      
@@ -472,7 +491,7 @@ class PageAdmin(admin.ModelAdmin):
         result = super(PageAdmin, self).response_change(request, obj)
             
         if "_continue" in request.POST:
-            if "_popup" in request.REQUEST:
+            if IS_POPUP_VAR in request.POST:
                 return HttpResponseRedirect(request.path + get_query_string(request.GET, new_params={'_popup': 1}, addq=True))
             else:
                 return HttpResponseRedirect(request.path + get_query_string(request.GET, addq=True))
@@ -514,12 +533,24 @@ class PageAdmin(admin.ModelAdmin):
     def adminlist_state(self, obj):
         if obj.state:
             field, attr, value = lookup_field('state', obj, self)
-            return display_for_field(value, field)
+            return display_for_field(value, field, "---")
         else:
             return ''
     adminlist_state.short_description = _('State')
     
+    def get_queryset(self, request):
+        # import debug
+            
+        qs = super(PageAdmin, self).get_queryset(request)
+        # qs = qs.filter(date__gte=datetime.datetime.now() - datetime.timedelta(hours=1))
+        # qs = qs.exclude(state__in=[page_state.SETTINGS, page_state.LOCK_DELETION, page_state.EXTRAHIDDEN])
+        # qs = Page().get_pages(request)['object_list']
+        # if not request.GET.get('parent__id__exact'):
+        #     qs = qs.filter(parent=None)
+        return qs       
+
     def adminlist_actions(self, obj):
+        # import debug
         links = [] 
         parent_content_type = scms.site.get_content_type(obj.type)
 
@@ -527,11 +558,13 @@ class PageAdmin(admin.ModelAdmin):
         
         if not '_popup' in self._request.GET:
             view_link = obj.alias and obj.alias or '/'
-            links.append(u'<nobr><a href="%s" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a></nobr>' % (view_link, _('View'), urljoin(settings.STATIC_URL, 'scms/icons/view.png'), _('View')) )
+            # import debug
+            links.append('<nobr><a href="%s" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a></nobr>' % (view_link, _('View'), urljoin(settings.STATIC_URL, 'scms/icons/view.png'), _('View')) )
             #if self.has_change_permission(self._request, obj): # не проверяем разрешения, чтобы не создавать нагрузку на БД. в противном случае раскомментировать
             links.append(u'<nobr><a href="%s/%s" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a></nobr>' % (obj.id, destination, _('Edit'), urljoin(settings.STATIC_URL, 'scms/icons/edit.png'), _('Edit')) )
         elif self._request.GET.get('parent_type', '__none_type__') in parent_content_type.children or not self._request.GET.get('parent_type'): # Второе условия на случай необходимости выбора страницы из другой модели/приложения
                 links.append( u'<nobr><a href="#" onclick="opener.dismissRelatedLookupPopup(window, %s); return false;" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a>' % (obj.id, _('Select'), urljoin(settings.STATIC_URL, 'scms/icons/choise.png'), _('Select')) )
+        # import debug
         return u' '.join(links)
     adminlist_actions.allow_tags = True
     adminlist_actions.short_description = _('Actions')

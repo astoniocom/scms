@@ -17,7 +17,7 @@ class ContactFormHistory(models.Model):
     date = models.DateTimeField(_("Date"), default=datetime.now)
     recipient = models.EmailField(_("E-mail Recipient"))
     body = models.TextField(_("Text"))
-    type = models.IntegerField(_("Type"), max_length=1, blank=False, db_index=True, default=0)
+    type = models.IntegerField(_("Type"), blank=False, db_index=True, default=0)
     
     class Meta:
         verbose_name = _('Message')

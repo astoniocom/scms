@@ -1,6 +1,6 @@
 from scms.plugin_base import SCMSPluginBase
 from django.forms.models import ModelForm
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.forms.widgets import Select
 from models import Text
 

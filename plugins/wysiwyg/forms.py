@@ -1,7 +1,7 @@
 # coding=utf-8
 from models import TinyMCE
 from django import forms
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 from tinymce.widgets import AdminTinyMCE
 from django.utils.safestring import mark_safe

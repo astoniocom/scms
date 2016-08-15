@@ -9,7 +9,7 @@ class SCMSPluginModel(models.Model):
     page = models.ForeignKey(Page, verbose_name=_("page"), editable=False)
     language = models.CharField(_("language"), max_length=5, blank=False, db_index=True, editable=False)
     field_name = models.CharField(_("field name"), max_length=40, blank=False, db_index=True, editable=False)
-    weight = models.IntegerField(_("Weight"), max_length=4, blank=False, db_index=True, default=0)
+    weight = models.IntegerField(_("Weight"), blank=False, db_index=True, default=0)
     
     class Meta:
         abstract = True

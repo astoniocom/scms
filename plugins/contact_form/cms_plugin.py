@@ -38,7 +38,6 @@ class ContactFormPlugin(SCMSPluginBase):
     
     def modify_page(self, page, request=None, language=None):
         #lang = language and language or get_language()
-        
         fields = getattr(page, self.name, False)
         if not fields:
             return

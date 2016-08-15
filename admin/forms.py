@@ -3,11 +3,12 @@ from django import forms
 from scms.models import Page, Slugs, page_state 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.forms.models import ModelChoiceField
 from django.core.exceptions import ValidationError 
 import scms
 from django.utils.translation import get_language
+import settings
 
 def slugify(value):
     """
@@ -17,7 +18,10 @@ def slugify(value):
     import unicodedata, re
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = unicode(re.sub('[^\.,\/*\w\s-]', '', value).strip().lower()) #TODO разобраться со звездочкой, пропускает из-за использования в качестве 1го символа алиаса
-    return re.sub('[-\s\.,]+', '-', value)
+    SCMS_SLUG = settings.SCMS_SLUG if hasattr(settings, 'SCMS_SLUG') else {}
+    pattern = SCMS_SLUG.get('pattern', '[-\s,\.]+')
+    change_symbol = SCMS_SLUG.get('change_symbol', '-')
+    return re.sub(pattern, change_symbol, value)     
 
 # Смысл в том, что креме полей одели Page на странице редактирования должны быть еще и поля модели Slug    
 class PageForm(forms.ModelForm):
@@ -44,6 +48,14 @@ class PageForm(forms.ModelForm):
         if instance:
             try:
                 self.slug = Slugs.objects.get(page=self.instance, language=self.language)
+                self.fields['slug'].initial = self.slug.slug
+                self.fields['alias'].initial = self.slug.alias
+                self.fields['title'].initial = self.slug.title
+            except Slugs.MultipleObjectsReturned:
+                slugs = Slugs.objects.filter(page=self.instance, language=self.language)
+                self.slug = slugs[0]
+                # for i in range(1, len(slugs)):
+                #     slugs[i].delete()
                 self.fields['slug'].initial = self.slug.slug
                 self.fields['alias'].initial = self.slug.alias
                 self.fields['title'].initial = self.slug.title

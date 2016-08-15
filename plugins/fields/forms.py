@@ -1,7 +1,7 @@
 # coding=utf-8
 from models import Fields
 from django import forms
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from utils import get_classplugin_from_str
@@ -11,6 +11,7 @@ import inspect
 class FieldsForm(forms.ModelForm):
     class Meta:
         model = Fields
+        fields = "__all__"
         
     def clean(self):
         if 'type' in self.cleaned_data and 'ext_params' in self.cleaned_data:

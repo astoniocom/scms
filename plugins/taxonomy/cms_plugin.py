@@ -4,7 +4,7 @@ from models import Taxonomy, Terms
 from forms import TaxonomyForm
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
 
 class TaxonomyPlugin(SCMSPluginBase):
     form = TaxonomyForm
@@ -47,7 +47,7 @@ class TaxonomyPlugin(SCMSPluginBase):
             group_tids = [term.id for term in terms]
             actived_tids = [str(t) for t in group_tids if str(t) in [str(tid) for tid in current_values.split(',')]]
             
-            chlist = SortedDict()
+            chlist = OrderedDict()
             chlist[0] = {
                 'name': self.any_filter_name,
                 'var':  getvar,
@@ -71,13 +71,14 @@ class TaxonomyPlugin(SCMSPluginBase):
         """
         Добавляет переменные в контекст отображения
         """
-        results = SortedDict()
+        results = OrderedDict()
         try:
+            # import debug
             values = self.model.objects.filter(page=page, language=language, field_name=self.name).select_related()
             key = 0 
             for value in values:
                 results[key] = {}
-                results[key]['terms'] =  value.terms.get_query_set()
+                results[key]['terms'] =  value.terms.get_queryset()
                 key = key+1
         except self.model.DoesNotExist:
             pass
