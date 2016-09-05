@@ -9,9 +9,7 @@ from django.template.defaultfilters import stringfilter
 
 register = Library()
 
-result_list = register.inclusion_tag("admin/scms/page/change_list_results.html")(result_list)
-
-register = template.Library()
+result_list= register.inclusion_tag("admin/scms/page/change_list_results.html")(result_list)
 
 @register.filter(name='custom_app_label')
 @stringfilter

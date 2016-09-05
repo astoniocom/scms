@@ -3,6 +3,7 @@ from django.db import models
 from scms.models.pagemodel import Page
 from django.utils.translation import ugettext_lazy as _
 from django.core.cache import cache
+from django.contrib.sites.models import Site
 import scms
 
 class SCMSPluginModel(models.Model):    
@@ -10,6 +11,7 @@ class SCMSPluginModel(models.Model):
     language = models.CharField(_("language"), max_length=5, blank=False, db_index=True, editable=False)
     field_name = models.CharField(_("field name"), max_length=40, blank=False, db_index=True, editable=False)
     weight = models.IntegerField(_("Weight"), blank=False, db_index=True, default=0)
+    # sites = models.ManyToManyField(Site)
     
     class Meta:
         abstract = True
