@@ -30,6 +30,7 @@ from scms.utils import get_destination
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.db import transaction
+from django.db.models import Q
 import scms
 from scms.admin.widgets import CMSForeignKeyRawIdWidget
 from urlparse import urljoin
@@ -44,7 +45,6 @@ from django.contrib.auth.models import User
 from scms.admin.actions import copy_page
 
 IS_POPUP_VAR = '_popup'
-
 
 csrf_protect_m = method_decorator(csrf_protect)
 class PageAdmin(admin.ModelAdmin):
@@ -103,14 +103,12 @@ class PageAdmin(admin.ModelAdmin):
             
         
         form = super(PageAdmin, self).get_form(request, obj, **kwargs)
-        
+        qs = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
         form.base_fields['authors'].initial = [request.user.id,] # Так, конечно не правильно, но другого способа назначить авторов по простому не нашел, возможно в будущих версиях переделают add_view
-        
-        try:
-            manager = User.objects.get(pk=2)
-            form.base_fields['authors'].initial.append(manager.pk)
-        except User.DoesNotExist:
-            pass
+        form.base_fields['authors'].queryset = qs
+        if qs:
+            for u in qs:
+               form.base_fields['authors'].initial.append(u.pk) 
         
         return form
         

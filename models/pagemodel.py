@@ -112,7 +112,7 @@ class Page(models.Model):
     state = models.IntegerField(_("State"), blank=True, null=True, db_index=True, choices=state_choises)
     date = models.DateTimeField(_("Date"), default=datetime.now)
     modifed = models.DateTimeField(_("Modifed"), blank=True)
-    authors = models.ManyToManyField(User, blank=True)
+    authors = models.ManyToManyField(User, verbose_name=_("Authors"), blank=True)
     
     class Meta:
         app_label = 'scms'
