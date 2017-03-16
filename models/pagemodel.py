@@ -1,5 +1,6 @@
 # coding=utf-8
 import datetime, scms, mptt, pickle, cPickle, dill, bson
+from pytils import translit
 from copy import deepcopy
 from datetime import datetime
 from bson.binary import Binary
@@ -447,6 +448,19 @@ class Slugs(models.Model):
             except Slugs.DoesNotExist:
                 pass 
 
+        # Если поле слаг пустое, генерируем слаг автоматически
+        if not self.slug:
+            slug = "%s".lower() % (translit.slugify(self.title))
+            i = 1
+            while True:
+                try:
+                    Slugs.objects.exclude(id=self.pk).get(slug=slug, language=self.language)
+                except Slugs.DoesNotExist:
+                    self.slug = slug
+                    break
+                else:
+                    slug = "%s_%s".lower() % (translit.slugify(self.title), i)
+                    i += 1            
         # Если поле алиас пустое, или начинается с символа '*' -- генерируем алиас автоматически
         if not self.alias or self.alias[0] == '*':
             #pk = self.page.pk
