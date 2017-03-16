@@ -282,10 +282,10 @@ class Page(models.Model):
                 
                 # Формирование списка модулей для подгрузки. Сделано с целью оптимизации, чтобы каждый вызов не происходил import_modules
                 page.modules = []
-                for madule_name in ['l_%s-%s'%(page.type, self.pk), 'l_%s'%page.type, 'l_common']:
+                for module_name in ['l_%s-%s'%(page.type, self.pk), 'l_%s'%page.type, 'l_common']:
                     try:
-                        mod = import_module('pages.' + madule_name)
-                        page.modules.append(madule_name)
+                        mod = import_module('pages.' + module_name)
+                        page.modules.append(module_name)
                     except ImportError:
                         continue
                 

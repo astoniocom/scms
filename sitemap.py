@@ -10,10 +10,10 @@ class SCMSSitemap(Sitemap):
 
     def items(self):
         self.default_language = get_default_language()
-        qs = Page.objects.filter(published=1).exclude(slugs__alias=None, state__in=[page_state.EXTRAHIDDEN, page_state.IN_TRASH, page_state.SETTINGS]).order_by('id','slugs__alias').extra(select={
+        qs = Page.objects.filter(published=1, slugs__language__in=[lang[0] for lang in settings.SCMS_LANGUAGES]).order_by('id','slugs__alias').extra(select={
                 'alias': 'IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*",""))' % page_state.MAIN,
                 'language': '`scms_slugs`.`language`',
-                })
+                }).exclude(state__in=[page_state.EXTRAHIDDEN, page_state.IN_TRASH, page_state.SETTINGS]).exclude(slugs__alias=None)
         len(qs) # Почему то по разному считается len(qs) и qs.count. И коунт считается не правильно из Sitemap.paginator. А если мы тут делаем len, то считается всё правильно. Google: django count and len different
         return qs
 
