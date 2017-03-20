@@ -458,9 +458,12 @@ class Slugs(models.Model):
                 except Slugs.DoesNotExist:
                     self.slug = slug
                     break
-                else:
-                    slug = "%s_%s".lower() % (translit.slugify(self.title), i)
-                    i += 1            
+                except Slugs.MultipleObjectsReturned:
+                    pass
+
+                slug = "%s_%s".lower() % (translit.slugify(self.title), i)
+                i += 1            
+
         # Если поле алиас пустое, или начинается с символа '*' -- генерируем алиас автоматически
         if not self.alias or self.alias[0] == '*':
             #pk = self.page.pk
