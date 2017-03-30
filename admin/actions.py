@@ -35,6 +35,7 @@ copy_selected.short_description = "Скопировать выбранные с�
 
 # функция копирования объекта вместе с его полями
 def copy_page(obj):
+    # Полное копирование страницы
     obj = Page(pk=obj.pk).full_load(only_cached=False)
     type = scms.site.get_content_type(obj.type)
     inline_instances = scms.site.get_content_type(obj.type).get_fields(obj)
@@ -55,8 +56,8 @@ def copy_page(obj):
 
     for val in old_fields:
         field = val[-1]
-        if(0 in field):
-            pk  = field[0]['id']
+        for value in field['values'].values():
+            pk  = value['id']
             f = field['plugin'].__class__.model.objects.get(pk=pk)
             f.id = None
             f.page = obj

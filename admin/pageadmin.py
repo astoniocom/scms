@@ -54,6 +54,9 @@ class PageAdmin(admin.ModelAdmin):
     actions = [actions.delete_selected, actions.copy_selected]
     form = PageForm
     declared_fieldsets = []
+
+    def copy_page(self, obj):
+        return copy_page(obj)
     
     def get_urls(self):
         from django.conf.urls import patterns, url
@@ -191,7 +194,7 @@ class PageAdmin(admin.ModelAdmin):
 
             if all_valid(formsets) and form_validated:
                 if "_saveasnew" in request.POST:
-                    new_object = copy_page(new_object)
+                    new_object = self.copy_page(new_object)
 
                 self.save_related(request, form, formsets, True)
                 self.save_model(request, new_object, form, True)
