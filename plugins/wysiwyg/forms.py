@@ -13,7 +13,7 @@ class SCMSTinyMCEWidget(AdminTinyMCE):
         
     def render(self, name, value, attrs=None):
         from django.core import urlresolvers
-        fb_url = urlresolvers.reverse('fb_browse')
+        fb_url = urlresolvers.reverse('filebrowser:fb_browse')
         
         # Определяем значение переменной для js-кода, содержащее значение папки страницы по умаолчанию
         from scms.utils import build_page_folder_path

@@ -27,4 +27,4 @@ class TextAreaPlugin(SCMSPluginBase):
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'body':
             return forms.CharField(label=_("Text"), widget=forms.Textarea({'rows': self.rows, 'style': "width: 100%"}), required=False)
-        return super(TextAreaPlugin, self).formfield_for_dbfield(db_field, **kwargs)        
+        return super(TextAreaPlugin, self).formfield_for_dbfield(db_field, **kwargs)

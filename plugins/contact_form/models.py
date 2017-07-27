@@ -23,6 +23,7 @@ class ContactFormHistory(models.Model):
         verbose_name = _('Message')
         verbose_name_plural = _('Messages')
         ordering = ('-date',)
+        db_table = "contact_form_contactformhistory"
     
     def __unicode__(self):
         return self.body[:84]

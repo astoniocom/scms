@@ -16,7 +16,7 @@ class Parameter(models.Model):
     name = models.CharField("Название", max_length=256, blank=False, null=False, db_index=True)
     measure = models.CharField("Измерение", max_length=256, blank=True, default="", db_index=False)
     language = models.CharField(_("Language"), max_length=5, blank=True, db_index=True)
-    weight = models.IntegerField("Вес", max_length=256, blank=False, null=False, db_index=True)
+    weight = models.IntegerField("Вес", blank=False, null=False, db_index=True)
 
     class Meta:
         verbose_name = "Параметр"

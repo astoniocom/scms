@@ -2,6 +2,7 @@ import django, tinymce
 from django.conf import settings
 from django.conf.urls import include, url
 from scms.views import scms_render, scms_clearcache, scms_treerebuild, scms_mongo_render
+from filebrowser.sites import site
 # from filebrowser.sites import site as fb_site
 
 urlpatterns = [
@@ -18,8 +19,9 @@ urlpatterns = [
     url(r'^tinymce/', include(tinymce.urls)),
     url(r'^admin/', include(django.contrib.admin.site.urls)),
 
-    url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^admin/filebrowser/', include('filebrowser.urls')),
+    # url(r'^grappelli/', include('grappelli.urls')),
+    # url(r'^admin/filebrowser/', include("filebrowser.site.urls")),
+    url(r'^admin/filebrowser/', include(site.urls)),
     url(r'^clearcache$', scms_clearcache, name='scms-clearcache'),
     url(r'^treerebuild$', scms_treerebuild, name='scms-treerebuild'),
     url(r'^(.*)$', scms_render, name='scms-render'),

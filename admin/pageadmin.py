@@ -59,7 +59,7 @@ class PageAdmin(admin.ModelAdmin):
         return copy_page(obj)
     
     def get_urls(self):
-        from django.conf.urls import patterns, url
+        from django.conf.urls import url
         
         def wrap(view):
             def wrapper(request, *args, **kwargs):
