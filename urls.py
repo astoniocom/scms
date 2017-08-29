@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^filebrowser/media/(.*)$', django.views.static.serve, {'document_root': 'x:/Python27/Lib/site-packages/filebrowser/media/filebrowser'}),
     url(r'^tiny_mce/media/(.*)$', django.views.static.serve, {'document_root': 'x:/Python27/Lib/site-packages/tinymce/media/tiny_mce'}),
     url(r'^scms/media/(.*)$',  django.views.static.serve, {'document_root': 'x:/Python27/Lib/site-packages/scms/media/scms'}),
-    url(r'^tinymce/', include(tinymce.urls)),
+    url(r'^tinymce/', include('tinymce.urls')),
     url(r'^admin/', include(django.contrib.admin.site.urls)),
 
     # url(r'^grappelli/', include('grappelli.urls')),
