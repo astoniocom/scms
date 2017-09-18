@@ -31,7 +31,7 @@
       {% for header in result_headers %}
         <td>
           {% if forloop.counter == 2 %}<a href="./{{ cl.list_toroot_link }}"><img src="{% static "scms/icons/folder_root.png" %}" style="width: 16px; height: 16px; margin: auto; display: block;"></a>{% endif %}
-          {% if forloop.counter == 3 %}<a href="./{{ cl.list_toroot_link }}">В корень</a>{% endif %}
+          {% if forloop.counter == 3 %}<a href="./{{ cl.list_toroot_link }}">{% trans "To the root" %}</a>{% endif %}
         </td>
       {% endfor %}
     </tr>
@@ -41,7 +41,7 @@
       {% for header in result_headers %}
         <td>
           {% if forloop.counter == 2 %}<a href="./{{ cl.list_toup_link }}"><img src="{% static "scms/icons/folder_parent.png" %}" style="width: 16px; height: 16px; margin: auto; display: block;"></a>{% endif %}
-          {% if forloop.counter == 3 %}<a href="./{{ cl.list_toup_link }}">На уровень выше</a>{% endif %}
+          {% if forloop.counter == 3 %}<a href="./{{ cl.list_toup_link }}">{% trans "Up one level" %}</a>{% endif %}
         </td>
       {% endfor %}
     </tr>
