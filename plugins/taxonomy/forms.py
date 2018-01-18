@@ -1,5 +1,5 @@
 # coding=utf-8
-from models import Terms
+from urllib.parse import urljoin
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
@@ -8,12 +8,12 @@ from django.forms.widgets import Select, SelectMultiple
 from django.forms.models import ModelMultipleChoiceField, ModelChoiceField
 from django.utils.safestring import mark_safe
 from django.conf import settings
-from django.core.urlresolvers import reverse, NoReverseMatch
-from urlparse import urljoin
+from django.urls import reverse, NoReverseMatch
+from .models import Terms
 
 class SCMSRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
-    def __init__(self, widget, rel, admin_site, vocabulary, language):
-        super(SCMSRelatedFieldWidgetWrapper, self).__init__(widget, rel, admin_site)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.vocabulary = vocabulary
         self.language = language
          
@@ -31,9 +31,10 @@ class SCMSRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
         if rel_to in self.admin_site._registry: # If the related object has an admin interface:
             # TODO: "id_" is hard-coded here. This should instead use the correct
             # API to determine the ID dynamically.
-            output.append(u'<a href="%s" class="add-another" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> ' % \
+            output.append(u'<div class="add-row"><a href="%s" class="add-another" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> ' % \
                 (related_url, name))
-            output.append(u'<img src="%s" width="10" height="10" alt="%s"/></a>' % (urljoin(settings.STATIC_URL, 'admin/img/icon_addlink.gif'), _('Add Another')))
+            # output.append(u'<img src="%s" width="10" height="10" alt="%s"/></a>' % (urljoin(settings.STATIC_URL, 'admin/img/icon_addlink.gif'), _('Add Another')))
+            output.append(u'%s</a></div>' % (_('Add Another')))
         return mark_safe(u''.join(output))
     
 class TaxonomyForm(forms.ModelForm):
@@ -42,9 +43,7 @@ class TaxonomyForm(forms.ModelForm):
         model = Terms
         fields = "__all__"
         
-    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
-                initial=None, error_class=ErrorList, label_suffix=':',
-                empty_permitted=False, instance=None):
+    def __init__(self, *args, **kwargs):
         
         # Формируем список возможных значений
         queryset = Terms.objects.filter(vocabulary=self.admin_field.vocabulary)
@@ -55,8 +54,7 @@ class TaxonomyForm(forms.ModelForm):
         language = self.admin_field.lang_depended and self.language or ''
         
         # Обращаемся к обработчику по-умолчанию
-        super(TaxonomyForm, self).__init__(data, files, auto_id, prefix, initial,
-                               error_class, label_suffix, empty_permitted, instance)
+        super().__init__(*args, **kwargs)
         
         old_widget = self.fields['terms'].widget
         

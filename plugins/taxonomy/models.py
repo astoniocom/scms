@@ -20,7 +20,7 @@ class Terms(models.Model):
         verbose_name_plural = _('Terms')
         ordering = ['weight', 'name',]
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

@@ -8,14 +8,116 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-03 14:28+0300\n"
+"POT-Creation-Date: 2017-12-26 12:11+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .\admin\actions.py:47
-msgid "Copy selected"
-msgstr "Скопировать выбранные"
+#: .\admin\actions.py:15
+#, python-format
+msgid "Cannot delete %(name)s"
+msgstr ""
+
+#: .\admin\actions.py:24
+#, python-format
+msgid "Delete selected %(verbose_name_plural)s"
+msgstr ""
+
+#: .\admin\actions.py:33
+#, python-format
+msgid "Copy selected %(verbose_name_plural)s"
+msgstr ""
+
+#: .\admin\forms.py:29 .\admin\pageadmin.py:627
+msgid "Title"
+msgstr ""
+
+#: .\admin\forms.py:30 .\admin\pageadmin.py:618
+msgid "Slug"
+msgstr ""
+
+#: .\admin\forms.py:30
+msgid "The part of the title that is used in the URL"
+msgstr ""
+
+#: .\admin\forms.py:31
+msgid "Alias"
+msgstr ""
+
+#: .\admin\forms.py:77
+msgid "A page cannot be parrent for itself"
+msgstr ""
+
+#: .\admin\forms.py:89
+msgid "The selected page cannot be parent"
+msgstr ""
+
+#: .\admin\forms.py:102
+msgid "Another page with this slug already exists"
+msgstr ""
+
+#: .\admin\forms.py:114
+msgid "Another page with this alias already exists"
+msgstr ""
+
+#: .\admin\forms.py:119
+msgid "Incorrect page type"
+msgstr ""
+
+#: .\admin\pageadmin.py:129 .\admin\pageadmin.py:131
+msgid "Additional"
+msgstr ""
+
+#: .\admin\pageadmin.py:134 .\admin\pageadmin.py:136
+msgid "Advanced options"
+msgstr ""
+
+#: .\admin\pageadmin.py:232
+#, python-format
+msgid "You have no permissions to change %(name)s"
+msgstr ""
+
+#: .\admin\pageadmin.py:240
+#, python-format
+msgid "%(name)s object with primary key %(key)r does not exist."
+msgstr ""
+
+#: .\admin\pageadmin.py:334
+#, python-format
+msgid "Change %s"
+msgstr ""
+
+#: .\admin\pageadmin.py:636
+msgid "State"
+msgstr ""
+
+#: .\admin\pageadmin.py:659
+msgid "View"
+msgstr ""
+
+#: .\admin\pageadmin.py:661
+msgid "Edit"
+msgstr ""
+
+#: .\admin\pageadmin.py:663
+msgid "Select"
+msgstr ""
+
+#: .\admin\pageadmin.py:667
+msgid "Actions"
+msgstr ""
+
+#: .\admin\pageadmin.py:675
+msgid "Type"
+msgstr ""
+
+#: .\admin\pageadmin.py:679
+msgid "Children"
+msgstr ""
+
+#~ msgid "Copy selected"
+#~ msgstr "Скопировать выбранные"

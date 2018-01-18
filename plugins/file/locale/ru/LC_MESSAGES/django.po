@@ -8,18 +8,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-03 14:06+0300\n"
+"POT-Creation-Date: 2017-12-26 12:11+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .\forms.py:14
+#: .\plugins\file\forms.py:8 .\plugins\file\models.py:15
 msgid "Description"
 msgstr "Описание"
 
-#: .\models.py:9
+#: .\plugins\file\models.py:14
 msgid "File"
 msgstr "Файл"

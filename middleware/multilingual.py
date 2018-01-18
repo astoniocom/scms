@@ -4,13 +4,13 @@ from django.utils import translation
 from django.conf import settings
 from scms.utils.i18n import get_default_language
 
-SUB = re.compile(ur'<a([^>]+)href="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
-    "|".join(map(lambda l: l[0] + "/" , settings.SCMS_LANGUAGES)), 
-    settings.MEDIA_URL[1:], 
+SUB = re.compile(r'<a([^>]+)href="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
+    "|".join(map(lambda l: l[0] + "/" , settings.SCMS_LANGUAGES)),
+    settings.MEDIA_URL[1:],
     settings.STATIC_URL[1:]
 ))
 
-SUB2 = re.compile(ur'<form([^>]+)action="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
+SUB2 = re.compile(r'<form([^>]+)action="/(?!(%s|%s|%s))([^"]*)"([^>]*)>' % (
     "|".join(map(lambda l: l[0] + "/" , settings.SCMS_LANGUAGES)),
      settings.MEDIA_URL[1:],
      settings.STATIC_URL[1:]
@@ -79,8 +79,8 @@ class MultilingualURLMiddleware:
                 decoded_response = response.content.decode('utf-8')
             except UnicodeDecodeError:
                 decoded_response = response.content
-            response.content = SUB.sub(ur'<a\1href="/%s/\3"\4>' % request.LANGUAGE_CODE, decoded_response)
-            response.content = SUB2.sub(ur'<form\1action="/%s/\3"\4>' % request.LANGUAGE_CODE, decoded_response)
+            response.content = SUB.sub(r'<a\1href="/%s/\3"\4>' % request.LANGUAGE_CODE, decoded_response)
+            response.content = SUB2.sub(r'<form\1action="/%s/\3"\4>' % request.LANGUAGE_CODE, decoded_response)
         if (response.status_code == 301 or response.status_code == 302 ):
             location = response._headers['location']
             prefix = has_lang_prefix(location[1])

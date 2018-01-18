@@ -7,240 +7,310 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-03 15:39+0300\n"
-"PO-Revision-Date: 2016-09-06 11:54+0300\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2017-12-26 12:11+0300\n"
+"PO-Revision-Date: 2017-12-26 12:32+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
-"X-Generator: Poedit 1.8.8\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.5\n"
 
-#: .\views.py:51
-msgid "Edit"
-msgstr "Изменить"
+#: .\apps.py:6 .\templatetags\scms_tags.py:561
+msgid "Content"
+msgstr "Контент"
 
-#: .\views.py:57
-msgid "Delete"
-msgstr "Удалить"
+#: .\models\pagemodel.py:101
+msgid "Main page"
+msgstr "Главная страница"
 
-#: .\views.py:67
-#, python-format
-msgid "Create %s"
-msgstr "Создать %s"
+#: .\models\pagemodel.py:102
+msgid "Lock deletion"
+msgstr "Удаление блокировано"
 
-#: .\views.py:72
-msgid "Go to CMS"
-msgstr "Перейти в панель управления"
+#: .\models\pagemodel.py:103
+#, fuzzy
+#| msgid "Extra Hidden"
+msgid "Extrahidden"
+msgstr "Скрыто из дерева"
 
-#: .\admin\forms.py:43
-msgid "Title"
-msgstr "Заголовок"
+#: .\models\pagemodel.py:104
+msgid "In the trash"
+msgstr "В корзине"
 
-#: .\admin\forms.py:44
-msgid "Slug"
-msgstr "Сегмент адреса"
+#: .\models\pagemodel.py:105
+msgid "Settings page"
+msgstr "Страница настроек"
 
-#: .\admin\forms.py:44
-msgid "The part of the title that is used in the URL"
-msgstr "Часть пути URL, на основании которой будет сформирован полный адрес страницы"
-
-#: .\admin\forms.py:45
-msgid "Alias"
-msgstr "Адрес"
-
-#: .\admin\forms.py:47
+#: .\models\pagemodel.py:108
 msgid "Parent"
 msgstr "Родительская страница"
 
-#: .\admin\forms.py:63
-msgid "A page cannot be parrent for itself"
-msgstr "Страница не может являться родительской для самой себя"
-
-#: .\admin\forms.py:74
-msgid "The selected page cannot be parent"
-msgstr "Выбранная страница не может быть родительской"
-
-#: .\admin\forms.py:85
-msgid "Another page with this alias already exists"
-msgstr "Указанный адрес уже используется другой страницей"
-
-#: .\admin\forms.py:96
-msgid "Another page with this slug already exists"
-msgstr "Указанный сегмент пути уже используется другой страницей"
-
-#: .\admin\pageadmin.py:40
-msgid "Advanced options"
-msgstr "Дополнительные опции"
-
-#: .\admin\pageadmin.py:169
-#, python-format
-msgid "%(name)s object with primary key %(key)r does not exist."
-msgstr "%(name)s объект с идентификатором %(key)r не существует."
-
-#: .\admin\pageadmin.py:246
-#, python-format
-msgid "Change %s"
-msgstr "Изменить %s"
-
-#: .\admin\pageadmin.py:276
-#, python-format
-msgid "The %(name)s \"%(obj)s\" was changed successfully."
-msgstr "%(name)s \"%(obj)s\" был успешно изменён."
-
-#: .\admin\pageadmin.py:278 .\admin\pageadmin.py:313
-msgid "You may edit it again below."
-msgstr "Ниже вы можете снова его отредактировать."
-
-#: .\admin\pageadmin.py:284
-#, python-format
-msgid "The %(name)s \"%(obj)s\" was added successfully. You may edit it again below."
-msgstr "%(name)s \"%(obj)s\" был успешно добавлен. Ниже вы можете снова его "
-
-#: .\admin\pageadmin.py:288 .\admin\pageadmin.py:325
-#, python-format
-msgid "You may add another %s below."
-msgstr "Ниже вы можете добавить еще один %s."
-
-#: .\admin\pageadmin.py:633
-msgid "View"
-msgstr "Просмотр"
-
-#: .\admin\pageadmin.py:638
-msgid "Select"
-msgstr "Выбрать"
-
-#: .\admin\pageadmin.py:474
-msgid "State"
-msgstr "Статус"
-
-#: .\admin\pageadmin.py:641
-msgid "Actions"
-msgstr "Действия"
-
-#: .\admin\pageadmin.py:646
+#: .\models\pagemodel.py:109
 msgid "Type"
 msgstr "Тип"
 
-#: .\admin\pageadmin.py:650
+#: .\models\pagemodel.py:110 .\models\pluginmodel.py:13
 msgid "Weight"
 msgstr "Вес"
 
-#: .\admin\pageadmin.py:655
-msgid "Children"
-msgstr "Потомков"
-
-#: .\models\pagemodel.py:20
+#: .\models\pagemodel.py:111
 msgid "Published"
 msgstr "Опубликовано"
 
-#: .\models\pagemodel.py:21
+#: .\models\pagemodel.py:112
 msgid "Hidden"
 msgstr "Скрыто"
 
-#: .\models\pagemodel.py:22
-msgid "Extra Hidden"
-msgstr "Скрыто из дерева"
-
-#: .\models\pagemodel.py:23
+#: .\models\pagemodel.py:113
 msgid "Expanded"
 msgstr "Развернуто"
 
-#: .\models\pagemodel.py:24
+#: .\models\pagemodel.py:114
+msgid "State"
+msgstr "Статус"
+
+#: .\models\pagemodel.py:115
 msgid "Date"
 msgstr "Дата"
 
-#: .\models\pagemodel.py:25
+#: .\models\pagemodel.py:116
 msgid "Modifed"
 msgstr "Изменен"
 
-#: .\models\pagemodel.py:28
+#: .\models\pagemodel.py:117
+msgid "Authors"
+msgstr "Авторы"
+
+#: .\models\pagemodel.py:121 .\models\pluginmodel.py:10
 msgid "page"
 msgstr "страница"
 
-#: .\models\pagemodel.py:29
+#: .\models\pagemodel.py:122
 msgid "pages"
 msgstr "страницы"
 
-#: .\models\pagemodel.py:222
+#: .\models\pagemodel.py:430
+msgid "Title"
+msgstr "Заголовок"
+
+#: .\models\pagemodel.py:432 .\plugins\param_value\models.py:11
 msgid "Language"
 msgstr "Язык"
 
-#: .\models\pluginmodel.py:9
+#: .\models\pagemodel.py:433
+msgid "Slug"
+msgstr "Сегмент адреса"
+
+#: .\models\pagemodel.py:434
+msgid "Alias"
+msgstr "Адрес"
+
+#: .\models\pluginmodel.py:11
 msgid "language"
 msgstr "язык"
 
-#: .\models\pluginmodel.py:10
+#: .\models\pluginmodel.py:12
 msgid "field name"
 msgstr "имя поля"
 
-#: .\templates\admin\scms\page\change_form.html.py:16
-#: .\templates\admin\scms\page\change_form.html.py:22
-msgid "Back"
-msgstr "Назад"
+#: .\plugins\param_value\models.py:9
+msgid "Name"
+msgstr "Имя"
 
-#: .\templates\admin\scms\page\change_form.html.py:17
-msgid "History"
-msgstr "История"
+#: .\plugins\param_value\models.py:10
+msgid "Description"
+msgstr "Описание"
 
-#: .\templates\admin\scms\page\change_form.html.py:18
-msgid "View on site"
-msgstr "Просмотреть на сайте"
+#: .\plugins\param_value\models.py:14 .\plugins\param_value\models.py:25
+msgid "Parameter"
+msgstr "Параметр"
 
-#: .\templates\admin\scms\page\change_form.html.py:38
+#: .\plugins\param_value\models.py:15
+msgid "Parameters"
+msgstr "Параметры"
+
+#: .\plugins\param_value\models.py:26
+msgid "Value"
+msgstr "Значение"
+
+#: .\templates\admin\scms\page\breadcrumbs.html:5
+msgid "Home"
+msgstr "Домой"
+
+#: .\templates\admin\scms\page\breadcrumbs.html:19
 msgid "Add"
 msgstr "Добавить"
 
-#: .\templates\admin\scms\page\change_list.html.py:10
+#: .\templates\admin\scms\page\breadcrumbs.html:20 .\views.py:89 .\views.py:249
+msgid "Delete"
+msgstr "Удалить"
+
+#: .\templates\admin\scms\page\breadcrumbs.html:21
+msgid "Delete multiple objects"
+msgstr "Удалить множество объектов"
+
+#: .\templates\admin\scms\page\change_form.html:17
+#: .\templates\admin\scms\page\change_form.html:28
+msgid "Back"
+msgstr "Назад"
+
+#: .\templates\admin\scms\page\change_form.html:21
+msgid "History"
+msgstr "История"
+
+#: .\templates\admin\scms\page\change_form.html:23
+#: .\templates\admin\scms\page\edit_inline\simple.html:30
+#: .\templates\admin\scms\page\edit_inline\stacked.html:14
+#: .\templates\admin\scms\page\edit_inline\tabular.html:33
+msgid "View on site"
+msgstr "Просмотреть на сайте"
+
+#: .\templates\admin\scms\page\change_list.html:10
 #, python-format
 msgid "Add %(pagename)s"
 msgstr "Создать %(pagename)s"
 
-#: .\templates\admin\scms\page\change_list.html.py:27
-msgid "Home"
-msgstr "Домой"
+#: .\templates\admin\scms\page\change_list_results.html:17
+msgid "Remove from sorting"
+msgstr "Удалить из сортировки"
 
-#: .\templates\admin\scms\page\edit_inline\tabular.html.py:15
-msgid "Delete?"
-msgstr "Удалить?"
+#: .\templates\admin\scms\page\change_list_results.html:18
+#, python-format
+msgid "Sorting priority: %(priority_number)s"
+msgstr "Отсортировать по приоритету: %(priority_number)s"
 
-#: .\models\pagemodel.py:43
-msgid "Main page"
-msgstr "Главная страница"
+#: .\templates\admin\scms\page\change_list_results.html:19
+msgid "Toggle sorting"
+msgstr "Переключить сортировку"
 
-#: .\models\pagemodel.py:44
-msgid "Lock deletion"
-msgstr "Удаление блокировано"
-
-#: .\models\pagemodel.py:46
-msgid "In the trash"
-msgstr "В корзине"
-
-#: .\models\pagemodel.py:47
-msgid "Settings page"
-msgstr "Страница настроек"
-
-#: .\admin\pageadmin.py:133
-msgid "You have no permissions to change %(name)s"
-msgstr "У вас недостаточно прав для изменения %(name)s"
-
-#: .\models\pageadmin.py:87
-msgid "Additional"
-msgstr "Дополнительно"
-
-#: .\admin\actions.py:47
-msgid "Copy selected"
-msgstr "Скопировать выбранные"
-
-msgid "Author"
-msgstr "Автор"
-
-msgid "Authors"
-msgstr "Авторы"
-
+#: .\templates\admin\scms\page\change_list_results.html:34
 msgid "To the root"
 msgstr "В корень"
 
+#: .\templates\admin\scms\page\change_list_results.html:44
 msgid "Up one level"
 msgstr "На уровень выше"
+
+#: .\templates\admin\scms\page\edit_inline\simple.html:17
+#: .\templates\admin\scms\page\edit_inline\tabular.html:17
+msgid "Delete?"
+msgstr "Удалить?"
+
+#: .\templates\admin\scms\page\edit_inline\simple.html:78
+#: .\templates\admin\scms\page\edit_inline\simple_wdelete.html:60
+#: .\templates\admin\scms\page\edit_inline\tabular.html:79
+#, python-format
+msgid "Add another %(verbose_name)s"
+msgstr "Добавить другой %(verbose_name)s"
+
+#: .\templates\admin\scms\page\edit_inline\simple.html:79
+#: .\templates\admin\scms\page\edit_inline\simple_wdelete.html:61
+#: .\templates\admin\scms\page\edit_inline\tabular.html:80
+msgid "Remove"
+msgstr "Убрать"
+
+#: .\templates\admin\scms\page\edit_inline\stacked.html:12
+#: .\templates\admin\scms\page\edit_inline\tabular.html:31
+#, fuzzy
+#| msgid "Change %s"
+msgid "Change"
+msgstr "Изменить %s"
+
+#: .\templatetags\scms_tags.py:560
+#, fuzzy
+#| msgid "Author"
+msgid "Auth"
+msgstr "Автор"
+
+#: .\templatetags\scms_tags.py:562
+msgid "Plugins"
+msgstr "Плагин"
+
+#: .\templatetags\scms_tags.py:563
+msgid "Sites"
+msgstr "Сайты"
+
+#: .\templatetags\scms_tags.py:564
+msgid "Contact Form"
+msgstr "Форма контактов"
+
+#: .\templatetags\scms_tags.py:565
+msgid "Tours"
+msgstr "Туры"
+
+#: .\views.py:82 .\views.py:242
+msgid "Edit"
+msgstr "Изменить"
+
+#: .\views.py:258
+#, python-format
+msgid "Create %s"
+msgstr "Создать %s"
+
+#: .\views.py:263
+msgid "Go to CMS"
+msgstr "Перейти в панель управления"
+
+#: .\views.py:343
+msgid "Cache is cleared"
+msgstr "Кеш удален"
+
+#: .\views.py:351
+msgid "Tree is rebuilded"
+msgstr "Дерево перестроено"
+
+#~ msgid "The part of the title that is used in the URL"
+#~ msgstr "Часть пути URL, на основании которой будет сформирован полный адрес страницы"
+
+#~ msgid "A page cannot be parrent for itself"
+#~ msgstr "Страница не может являться родительской для самой себя"
+
+#~ msgid "The selected page cannot be parent"
+#~ msgstr "Выбранная страница не может быть родительской"
+
+#~ msgid "Another page with this alias already exists"
+#~ msgstr "Указанный адрес уже используется другой страницей"
+
+#~ msgid "Another page with this slug already exists"
+#~ msgstr "Указанный сегмент пути уже используется другой страницей"
+
+#~ msgid "Advanced options"
+#~ msgstr "Дополнительные опции"
+
+#~ msgid "%(name)s object with primary key %(key)r does not exist."
+#~ msgstr "%(name)s объект с идентификатором %(key)r не существует."
+
+#~ msgid "The %(name)s \"%(obj)s\" was changed successfully."
+#~ msgstr "%(name)s \"%(obj)s\" был успешно изменён."
+
+#~ msgid "You may edit it again below."
+#~ msgstr "Ниже вы можете снова его отредактировать."
+
+#~ msgid "The %(name)s \"%(obj)s\" was added successfully. You may edit it again below."
+#~ msgstr "%(name)s \"%(obj)s\" был успешно добавлен. Ниже вы можете снова его "
+
+#~ msgid "You may add another %s below."
+#~ msgstr "Ниже вы можете добавить еще один %s."
+
+#~ msgid "View"
+#~ msgstr "Просмотр"
+
+#~ msgid "Select"
+#~ msgstr "Выбрать"
+
+#~ msgid "Actions"
+#~ msgstr "Действия"
+
+#~ msgid "Children"
+#~ msgstr "Потомков"
+
+#~ msgid "You have no permissions to change %(name)s"
+#~ msgstr "У вас недостаточно прав для изменения %(name)s"
+
+#~ msgid "Additional"
+#~ msgstr "Дополнительно"
+
+#~ msgid "Copy selected"
+#~ msgstr "Скопировать выбранные"

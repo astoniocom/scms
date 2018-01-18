@@ -1,10 +1,10 @@
 # coding=utf-8
-from scms.plugin_base import SCMSPluginBase
-from models import Taxonomy, Terms
-from forms import TaxonomyForm
+from collections import OrderedDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
-from collections import OrderedDict
+from scms.plugin_base import SCMSPluginBase
+from .models import Taxonomy, Terms
+from .forms import TaxonomyForm
 
 class TaxonomyPlugin(SCMSPluginBase):
     form = TaxonomyForm

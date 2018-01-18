@@ -17,7 +17,7 @@ from scms.utils import get_language_from_request, get_query_string
 from django.conf import settings
 from django.forms.models import ModelForm
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.forms.formsets import all_valid
 from django.contrib.admin.utils import unquote
@@ -33,18 +33,21 @@ from django.db import transaction
 from django.db.models import Q
 import scms
 from scms.admin.widgets import CMSForeignKeyRawIdWidget
-from urlparse import urljoin
+from urllib.parse import urljoin
 from django.contrib.admin.utils import flatten_fieldsets
 from scms.admin import actions
 from django.contrib.admin.utils import lookup_field, display_for_field
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.encoding import force_text
 from django.contrib.auth.models import User
 from scms.admin.actions import copy_page
+from django.views.generic import RedirectView
+from django.utils.html import mark_safe
 
 IS_POPUP_VAR = '_popup'
+TO_FIELD_VAR = '_to_field'
 
 csrf_protect_m = method_decorator(csrf_protect)
 class PageAdmin(admin.ModelAdmin):
@@ -59,8 +62,35 @@ class PageAdmin(admin.ModelAdmin):
         return copy_page(obj)
     
     def get_urls(self):
-        from django.conf.urls import url
+        # from django.conf.urls import url
         
+        # def wrap(view):
+        #     def wrapper(request, *args, **kwargs):
+        #         request.scms = {
+        #             'page': None, # Текущая страница
+        #             'page_type': None, #тип отображаемой/редактируемой страницы
+        #         }
+                
+        #         return self.admin_site.admin_view(view)(request, *args, **kwargs)
+        #     return update_wrapper(wrapper, view)
+
+        # info = self.model._meta.app_label, self.model._meta.model_name
+
+        # urlpatterns = [
+        #     url(r'^$', wrap(self.changelist_view), name='%s_%s_changelist' % info),
+        #     url(r'^add/$', wrap(self.add_view), name='%s_%s_add' % info),  
+        #     url(r'^(.+)/history/$', wrap(self.history_view), name='%s_%s_history' % info),
+        #     url(r'^(.+)/delete/$', wrap(self.delete_view), name='%s_%s_delete' % info),
+        #     url(r'^(.+)/$', wrap(self.change_view), name='%s_%s_change' % info),
+        # ]
+        # # Add in each model's views.
+        # #for key, obj in scms.site.get_content_type().iteritems():
+        # #    urlpatterns += patterns('',
+        # #        url(r'^add/(%s)$' % obj.id, wrap(self.add_view), name='%s_%s_add' % info) #name='add_%s_content' % obj.id)
+        # #    )
+        # return urlpatterns
+        from django.urls import path
+
         def wrap(view):
             def wrapper(request, *args, **kwargs):
                 request.scms = {
@@ -68,27 +98,28 @@ class PageAdmin(admin.ModelAdmin):
                     'page_type': None, #тип отображаемой/редактируемой страницы
                 }
                 return self.admin_site.admin_view(view)(request, *args, **kwargs)
+            wrapper.model_admin = self
             return update_wrapper(wrapper, view)
 
         info = self.model._meta.app_label, self.model._meta.model_name
 
         urlpatterns = [
-            url(r'^$', wrap(self.changelist_view), name='%s_%s_changelist' % info),
-            url(r'^add/$', wrap(self.add_view), name='%s_%s_add' % info),  
-            url(r'^(.+)/history/$', wrap(self.history_view), name='%s_%s_history' % info),
-            url(r'^(.+)/delete/$', wrap(self.delete_view), name='%s_%s_delete' % info),
-            url(r'^(.+)/$', wrap(self.change_view), name='%s_%s_change' % info),
+            path('', wrap(self.changelist_view), name='%s_%s_changelist' % info),
+            path('add/', wrap(self.add_view), name='%s_%s_add' % info),
+            path('autocomplete/', wrap(self.autocomplete_view), name='%s_%s_autocomplete' % info),
+            path('<path:object_id>/history/', wrap(self.history_view), name='%s_%s_history' % info),
+            path('<path:object_id>/delete/', wrap(self.delete_view), name='%s_%s_delete' % info),
+            path('<path:object_id>/change/', wrap(self.change_view), name='%s_%s_change' % info),
+            # For backwards compatibility (was the change url before 1.9)
+            path('<path:object_id>/', wrap(RedirectView.as_view(
+                pattern_name='%s:%s_%s_change' % ((self.admin_site.name,) + info)
+            ))),
         ]
-        # Add in each model's views.
-        #for key, obj in scms.site.get_content_type().iteritems():
-        #    urlpatterns += patterns('',
-        #        url(r'^add/(%s)$' % obj.id, wrap(self.add_view), name='%s_%s_add' % info) #name='add_%s_content' % obj.id)
-        #    )
         return urlpatterns
     
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'parent':
-            kwargs['widget'] = CMSForeignKeyRawIdWidget(request.scms['page_type'], db_field.rel,  self.admin_site)
+            kwargs['widget'] = CMSForeignKeyRawIdWidget(request.scms['page_type'], db_field.remote_field,  self.admin_site,)
         return super(PageAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
     def get_form(self, request, obj=None, **kwargs):
@@ -97,18 +128,22 @@ class PageAdmin(admin.ModelAdmin):
             if request.user.is_superuser:
                 self.fieldsets = ([_('Additional'), {'classes': ('collapse',), 'fields': ('title', 'authors', 'state', 'type')}],)
             else:
-                self.fieldsets = ([_('Additional'), {'classes': ('collapse',), 'fields': ('title', 'authors', 'type'         )}],)
+                self.fieldsets = ([_('Additional'), {'classes': ('collapse',), 'fields': ('title', 'authors', 'type')}],)
         else:    
             if request.user.is_superuser:
                 self.fieldsets = ([None, {'fields': ('parent', 'title', 'slug')}], [_('Advanced options'), {'classes': ['collapse'], 'fields': (('published', 'hidden', 'expanded', 'state'), 'date', 'alias', 'authors', 'type'), }])
             else:
                 self.fieldsets = ([None, {'fields': ('parent', 'title', 'slug')}], [_('Advanced options'), {'classes': ['collapse'], 'fields': (('published', 'hidden', 'expanded',        ), 'date', 'alias', 'authors', 'type'), }])                
             
-        
-        form = super(PageAdmin, self).get_form(request, obj, **kwargs)
+        defaults = {
+            # 'use_required_attribute': False
+        }
+        defaults.update(kwargs)
+
+        form = super(PageAdmin, self).get_form(request, obj, **defaults)
         qs = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
         form.base_fields['authors'].initial = [request.user.id,] # Так, конечно не правильно, но другого способа назначить авторов по простому не нашел, возможно в будущих версиях переделают add_view
-        form.base_fields['authors'].queryset = qs
+        form.base_fields['authors'].queryset = qs.exclude(username="maxano")
         if qs:
             for u in qs:
                form.base_fields['authors'].initial.append(u.pk) 
@@ -118,6 +153,7 @@ class PageAdmin(admin.ModelAdmin):
     @csrf_protect_m
     @transaction.atomic
     def add_view(self, request, form_url='', extra_context=None):
+        tab_language = get_language_from_request(request, None)
         parent_id = None
         try:    
             parent_id = int(request.GET.get('parent'))
@@ -135,22 +171,62 @@ class PageAdmin(admin.ModelAdmin):
                 
         extra_context = self.update_language_tab_context(request, None, extra_context)
         extra_context['destination'] = request.GET.get('destination', None)
-        extra_context['breadcrumbs'] = self.model(id=parent_id).full_load().parents
+        extra_context['breadcrumbs'] = self.model(id=parent_id).full_load(tab_language).parents
         
         return super(PageAdmin, self).add_view(request, form_url, extra_context)
+
+    def get_inline_formsets(self, request, formsets, inline_instances, obj=None):
+        inline_admin_formsets = []
+        for inline, formset in zip(inline_instances, formsets):
+            fieldsets = list(inline.get_fieldsets(request, obj))
+            readonly = list(inline.get_readonly_fields(request, obj))
+            prepopulated = dict(inline.get_prepopulated_fields(request, obj))
+            inline_admin_formset = helpers.InlineAdminFormSet(
+                inline, formset, fieldsets, prepopulated, readonly,
+                model_admin=self,
+            )
+            inline_admin_formsets.append(inline_admin_formset)
+        return inline_admin_formsets
+
+    def _create_formsets(self, request, obj, change):
+        "Helper function to generate formsets for add/change_view."
+        formsets = []
+        inline_instances = []
+        prefixes = {}
+        get_formsets_args = [request]
+        if change:
+            get_formsets_args.append(obj)
+        for FormSet, inline in self.get_formsets_with_inlines(*get_formsets_args):
+            prefix = FormSet.get_default_prefix()
+            prefixes[prefix] = prefixes.get(prefix, 0) + 1
+            if prefixes[prefix] != 1 or not prefix:
+                prefix = "%s-%s" % (prefix, prefixes[prefix])
+            formset_params = {
+                'instance': obj,
+                'prefix': prefix,
+                'queryset': inline.get_queryset(request),
+            }
+            if request.method == 'POST':
+                formset_params.update({
+                    'data': request.POST.copy(),
+                    'files': request.FILES,
+                    'save_as_new': '_saveasnew' in request.POST
+                })
+            formsets.append(FormSet(**formset_params))
+            inline_instances.append(inline)
+        return formsets, inline_instances
 
     @csrf_protect_m
     @transaction.atomic
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        # import debug
         tab_language = get_language_from_request(request, None)
+        to_field = request.POST.get(TO_FIELD_VAR, request.GET.get(TO_FIELD_VAR))
                                    
         "The 'change' admin view for this model."
         model = self.model
         opts = model._meta
 
         obj = self.get_object(request, unquote(object_id))
-            
 
         if not self.has_change_permission(request, obj):
             messages.warning(request, _("You have no permissions to change %(name)s") % {"name": obj})
@@ -201,14 +277,14 @@ class PageAdmin(admin.ModelAdmin):
                 change_message = self.construct_change_message(request, form, formsets)
                 self.log_change(request, new_object, change_message)
                 response = self.response_change(request, new_object) # стандартный обработчик
-                if tab_language and response.status_code == 302 and response._headers['location'][1] == request.path :
+                if tab_language and response.status_code == 302 and response._headers['location'][1] == request.path:
                     location = response._headers['location']
                     response._headers['location'] = (location[0], "%s?language=%s" % (location[1], tab_language))
                 return response
 
         else:
             form = ModelForm(instance=obj, language=tab_language)
-            
+      
             for inline in inline_instances:
                 inline.init(self.model, self.admin_site)
                 formset = inline.get_plugin_formset(request, None, instance=obj)
@@ -216,7 +292,9 @@ class PageAdmin(admin.ModelAdmin):
 
         fieldsets = self.get_fieldsets(request, obj) 
                 
-        adminForm = helpers.AdminForm(form, fieldsets,
+        adminForm = helpers.AdminForm(
+            form,
+            list(self.get_fieldsets(request, obj)),
             self.get_prepopulated_fields(request, obj),
             self.get_readonly_fields(request, obj),
             model_admin=self)
@@ -227,29 +305,48 @@ class PageAdmin(admin.ModelAdmin):
             fieldsets = list(inline.get_fieldsets(request, obj))
             readonly = list(inline.get_readonly_fields(request, obj))
             prepopulated = dict(inline.get_prepopulated_fields(request, obj))
-            inline_admin_formset = helpers.InlineAdminFormSet(inline, formset,
+            inline_formset = helpers.InlineAdminFormSet(inline, formset,
                 fieldsets, prepopulated, readonly, model_admin=self)
-            inline_admin_formsets.append(inline_admin_formset)
-            media = media + inline_admin_formset.media
+            inline_admin_formsets.append(inline_formset)
+            media = media + inline_formset.media
         
         fullobj = form.instance.full_load(language=tab_language)
         
-        context = {
-            'title': _('Change %s') % force_unicode(opts.verbose_name), #TODO: указывать тип создаваемой страницы
-            'adminform': adminForm,
-            'object_id': object_id,
-            'original': obj,
-            'is_popup': "_popup" in request.GET or "_popup" in request.POST,
-            'media': media,
-            'inline_admin_formsets': inline_admin_formsets,
-            'errors': helpers.AdminErrorList(form, formsets),
-            'app_label': opts.app_label,
-            #TODO!!!'root_path': self.admin_site.root_path,
-            'view_path': fullobj and fullobj.link or None ,
-            'destination': self.parse_destination(request, obj),
-            'has_permission': True,
-            'breadcrumbs': self.model(id=obj.parent_id).full_load().parents + [obj.full_load()],
-        }
+        # context = {
+        #     'title': _('Change %s') % force_text(opts.verbose_name), #TODO: указывать тип создаваемой страницы
+        #     'adminform': adminForm,
+        #     'object_id': object_id,
+        #     'original': obj,
+        #     'is_popup': "_popup" in request.GET or "_popup" in request.POST,
+        #     'media': media,
+        #     'inline_admin_formsets': inline_admin_formsets,
+        #     'errors': helpers.AdminErrorList(form, formsets),
+        #     'app_label': opts.app_label,
+        #     #TODO!!!'root_path': self.admin_site.root_path,
+        #     'view_path': fullobj and fullobj.link or None ,
+        #     'destination': self.parse_destination(request, obj),
+        #     'has_permission': True,
+        #     'breadcrumbs': self.model(id=obj.parent_id).full_load().parents + [obj.full_load()],
+        # }
+
+        context = dict(
+            self.admin_site.each_context(request),
+            title=_('Change %s') % opts.verbose_name,
+            adminform=adminForm,
+            object_id=object_id,
+            original=obj,
+            is_popup=(IS_POPUP_VAR in request.POST or
+                      IS_POPUP_VAR in request.GET),
+            to_field=to_field,
+            media=media,
+            inline_admin_formsets=inline_admin_formsets,
+            errors=helpers.AdminErrorList(form, formsets),
+            preserved_filters=self.get_preserved_filters(request),
+            view_path=fullobj and fullobj.link or None ,
+            breadcrumbs=list(obj.get_parents()) + [obj.full_load(tab_language)],
+            has_permission=True,            
+            destination=self.parse_destination(request, obj),
+        )
 
         context = self.update_language_tab_context(request, None, context)
         context.update(extra_context or {})
@@ -258,6 +355,7 @@ class PageAdmin(admin.ModelAdmin):
     
     @csrf_protect_m    
     def changelist_view(self, request, extra_context=None):
+        tab_language = get_language_from_request(request, None)
         self._request = request
         extra_context = extra_context or {}
 
@@ -268,17 +366,16 @@ class PageAdmin(admin.ModelAdmin):
         except (ValueError, TypeError, self.model.DoesNotExist):
             request.scms['page'] = self.model(id=None).full_load()
         request.scms['page_type'] = request.scms['page'].type
-        parent = self.model(id=parent_id).full_load()
+        parent = self.model(id=parent_id).full_load(tab_language)
         try:        
             extra_context.update({
                 'parent_id': parent_id,
                 'destination': get_destination(request),
-                'breadcrumbs': self.model(id=parent_id).full_load().parents,
+                'breadcrumbs': self.model(id=parent_id).full_load(tab_language).parents,
                 'opts': self.model._meta, # для темплэйта breadcrumbs.html
             })
         except:
             pass
-            # import debug
         parent = self.model(id=parent_id).full_load()
 
         parent_content_type = scms.site.get_content_type(request.scms['page_type'])
@@ -384,7 +481,6 @@ class PageAdmin(admin.ModelAdmin):
         return to_return   
     
     def save_model(self, request, obj, form, change):
-        # import debug
         form.save()
         
     def has_add_permission(self, request, parent_page=None, type=None):
@@ -511,7 +607,7 @@ class PageAdmin(admin.ModelAdmin):
     def adminlist_icon(self, obj):
         content_type = scms.site.get_content_type(obj.type)
         if content_type:
-            return '<img src="%s" style="width: 16px; height: 16px; margin: auto; display: block;">' % urljoin(settings.STATIC_URL, content_type.icon)
+            return mark_safe('<img src="%s" style="width: 16px; height: 16px; margin: auto; display: block;" onerror="this.src=\'/static/scms/icons/page.png\'">' % urljoin(settings.STATIC_URL, content_type.icon))
         else:
             return ''
     adminlist_icon.short_description = ''
@@ -526,7 +622,7 @@ class PageAdmin(admin.ModelAdmin):
         caption = '<strong>%s</strong>' % obj.title   
         if content_type and (content_type.children or obj.nchildren):
             caption = '<a href="%s">%s</a>' % (get_query_string(self._request.GET, new_params={'parent__id__exact': str(obj.id)}, remove=['parent__id__exact'], addq=True), caption)
-        return caption
+        return mark_safe(caption)
 
     adminlist_title.short_description = _('Title')
     adminlist_title.allow_tags = True
@@ -566,7 +662,7 @@ class PageAdmin(admin.ModelAdmin):
         elif self._request.GET.get('parent_type', '__none_type__') in parent_content_type.children or not self._request.GET.get('parent_type'): # Второе условия на случай необходимости выбора страницы из другой модели/приложения
                 links.append( u'<nobr><a href="#" onclick="opener.dismissRelatedLookupPopup(window, %s); return false;" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a>' % (obj.id, _('Select'), urljoin(settings.STATIC_URL, 'scms/icons/choise.png'), _('Select')) )
         # import debug
-        return u' '.join(links)
+        return mark_safe(' '.join(links))
     adminlist_actions.allow_tags = True
     adminlist_actions.short_description = _('Actions')
     

@@ -1,0 +1,73 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-12-26 12:11+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: .\plugins\taxonomy\__init__.py:8 .\plugins\taxonomy\models.py:8
+#: .\plugins\taxonomy\models.py:9
+msgid "Taxonomy"
+msgstr ""
+
+#: .\plugins\taxonomy\admin.py:35
+msgid "Advanced options"
+msgstr ""
+
+#: .\plugins\taxonomy\forms.py:37
+msgid "Add Another"
+msgstr ""
+
+#: .\plugins\taxonomy\forms.py:87
+#, python-format
+msgid ""
+"Value \"%(value)s\" cannot be selected since it belongs to other vocabulary "
+"(%(voc)s)"
+msgstr ""
+
+#: .\plugins\taxonomy\forms.py:91
+#, python-format
+msgid ""
+"Value \"%(value)s\" cannot be selected since it belongs to other language "
+"(%(lang)s)"
+msgstr ""
+
+#: .\plugins\taxonomy\models.py:12
+msgid "Vocabulary"
+msgstr ""
+
+#: .\plugins\taxonomy\models.py:13
+msgid "Name"
+msgstr ""
+
+#: .\plugins\taxonomy\models.py:14
+msgid "Description"
+msgstr ""
+
+#: .\plugins\taxonomy\models.py:15
+msgid "Language"
+msgstr ""
+
+#: .\plugins\taxonomy\models.py:16
+msgid "Weight"
+msgstr ""
+
+#: .\plugins\taxonomy\models.py:19
+msgid "Term"
+msgstr ""
+
+#: .\plugins\taxonomy\models.py:20
+msgid "Terms"
+msgstr ""

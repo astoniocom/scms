@@ -1,8 +1,8 @@
 # coding=utf-8
-from scms.plugin_base import SCMSPluginBase
-from models import File
-from forms import FileForm
 import shutil, os 
+from scms.plugin_base import SCMSPluginBase
+from .models import File
+from .forms import FileForm
 
 
 class FilePlugin(SCMSPluginBase):

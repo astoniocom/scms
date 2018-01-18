@@ -1,12 +1,13 @@
 # coding=utf-8
 from django.conf import settings
-from i18n import get_default_language
+from django.utils.translation import get_language
+from .i18n import get_default_language
 import os
 from django.utils.safestring import mark_safe
 from django.utils.http import urlquote
 from django.core.exceptions import FieldError
 from django.utils.encoding import iri_to_uri
-from urllib import quote
+from urllib.parse import quote
 
 def get_language_from_request(request, current_page=None):
 	#from scms.models import Page
@@ -21,7 +22,7 @@ def get_language_from_request(request, current_page=None):
 			language = None
 		
 	if language is None:
-		language = getattr(request, 'LANGUAGE_CODE')
+		language = get_language()
 		
 	if language:
 		if not language in dict(settings.SCMS_LANGUAGES).keys():
@@ -130,7 +131,7 @@ def get_query_string(p, new_params=None, remove=None, addq=True):
 	if new_params is None: new_params = {}
 	if remove is None: remove = []
 	for r in remove:
-		for k in p.keys():
+		for k in list(p.keys()):
 			#if k.startswith(r):
 			if k == r:
 				del p[k]
@@ -141,7 +142,7 @@ def get_query_string(p, new_params=None, remove=None, addq=True):
 			p[k] = v
 	
 	for k, v in p.items():
-		if isinstance(v, unicode):
+		if isinstance(v, str):
 			p[k] = v
 		else:
 			p[k] = quote(str(v)) # Конвертируем символы в url формат

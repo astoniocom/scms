@@ -1,11 +1,11 @@
 # coding=utf-8
-from models import ContactForm
+from collections import OrderedDict
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
-from collections import OrderedDict
 #import supercaptcha
 from django_fortima_utils.form_honeypots import FormHoneypotsField
+from .models import ContactForm
 
 class FormContactForm(forms.Form):
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
@@ -14,7 +14,7 @@ class FormContactForm(forms.Form):
 
         self.base_fields = OrderedDict()
 
-        for id, field_desc in fields['values'].iteritems():
+        for id, field_desc in fields['values'].items():
             field_name = 'field_%s' % id
             attrs = {}
             if field_desc['required']:

@@ -11,5 +11,5 @@ class PageDescriptionField(models.TextField):
         return super(PageDescriptionField, self).formfield(**kwargs)    
 
 class PageSelect(SCMSPluginModel):
-    relpage = models.ForeignKey('scms.Page', verbose_name="Страница", blank=False, related_name='relpage')
+    relpage = models.ForeignKey('scms.Page', verbose_name="Страница", blank=False, related_name='relpage', on_delete=models.CASCADE)
     description = PageDescriptionField(_("Description"), max_length=200, blank=True, null=True)

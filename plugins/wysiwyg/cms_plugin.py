@@ -1,12 +1,11 @@
 # coding=utf-8
-from scms.plugin_base import SCMSPluginBase
-from models import TinyMCE
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from tinymce.widgets import AdminTinyMCE
 from django.utils.safestring import mark_safe
 from django.forms.widgets import Textarea
-
+from scms.plugin_base import SCMSPluginBase
+from .models import TinyMCE
 
 class SCMSTinyMCEWidget(AdminTinyMCE):
     def __init__(self, attrs=None, page_id=None):
@@ -14,8 +13,8 @@ class SCMSTinyMCEWidget(AdminTinyMCE):
         self.page_id = page_id
         
     def render(self, name, value, attrs=None):
-        from django.core import urlresolvers
-        fb_url = urlresolvers.reverse('filebrowser:fb_browse')
+        from django.urls import reverse
+        fb_url = reverse('filebrowser:fb_browse')
         
         # Определяем значение переменной для js-кода, содержащее значение папки страницы по умаолчанию
         from scms.utils import build_page_folder_path
@@ -72,7 +71,7 @@ class SCMSTinyMCEWidget(AdminTinyMCE):
         """.replace('_page_folder_js_', page_folder_js).replace('_files_folder_js_', files_folder_js).replace('_fb_url_', fb_url)
         
         result = super(SCMSTinyMCEWidget, self).render(name, value, attrs=attrs)
-        return mark_safe(filebrowser_js + unicode(result).replace('djangoFileBrowser', 'djangoTinyBrowser') )
+        return mark_safe(filebrowser_js + str(result).replace('djangoFileBrowser', 'djangoTinyBrowser') )
 
 
 class TinyMCEPlugin(SCMSPluginBase):

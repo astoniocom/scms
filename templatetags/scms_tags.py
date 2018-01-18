@@ -12,10 +12,9 @@ else:
 
 from django.template.defaultfilters import stringfilter
 from collections import OrderedDict
-from django.utils.encoding import force_unicode
 from importlib import import_module
 from django.utils.translation import get_language,  ugettext as _
-from django.utils.encoding import smart_str, force_unicode
+from django.utils.encoding import smart_str, force_text
 from scms.models.pagemodel import Page, MongoManager
 from scms.utils import query_str_to_dict, get_query_string, get_mongo
 register = Library()
@@ -103,7 +102,7 @@ def do_getpages(parser, token):
 					params = query_str_to_dict(bit)
 					
 					for key, value in params.items():
-						params[key] = isinstance(value, unicode) and parser.compile_filter(str(value)) or value
+						params[key] = isinstance(value, str) and parser.compile_filter(str(value)) or value
 										
 				var_name = None   
 	return GetpagesNode(var, params, order, page, perpage)               
@@ -395,11 +394,11 @@ def do_query_string(parser, token):
 	param_to_add = {}
 	for key, value in query_str_to_dict(bits[1][1:-1]).items():
 		new_key = isinstance(key, str) and parser.compile_filter(str(key)) or key
-		param_to_add[new_key] = isinstance(value, unicode) and parser.compile_filter(str(value)) or value
+		param_to_add[new_key] = isinstance(value, str) and parser.compile_filter(str(value)) or value
 
 	param_to_remove = []
 	for value in bits[2][1:-1].split(','):
-		param_to_remove.append( isinstance(value, unicode) and parser.compile_filter(str(value)) or value ) 
+		param_to_remove.append( isinstance(value, str) and parser.compile_filter(str(value)) or value ) 
 
 	return QueryStringNode(param_to_add, param_to_remove)               
 do_query_string = register.tag("query_string", do_query_string)
@@ -484,7 +483,7 @@ def intspace(value):
 	Converts an integer to a string containing commas every three digits.
 	For example, 3000 becomes '3,000' and 45000 becomes '45,000'.
 	"""
-	orig = force_unicode(value)
+	orig = force_text(value)
 	new = re.sub("^(-?\d+)(\d{3})", '\g<1> \g<2>', orig)
 	if orig == new:
 		return new

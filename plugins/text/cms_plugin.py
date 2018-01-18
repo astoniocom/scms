@@ -1,16 +1,14 @@
-from scms.plugin_base import SCMSPluginBase
 from django.forms.models import ModelForm
 from django.forms.utils import ErrorList
 from django.forms.widgets import Select
-from models import Text
+from scms.plugin_base import SCMSPluginBase
+from .models import Text
 
 class TextPluginModelForm(ModelForm):
     choices = None
-    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
-                 initial=None, error_class=ErrorList, label_suffix=':',
-                 empty_permitted=False, instance=None):
+    def __init__(self, *args, **kwargs):
         
-        super(TextPluginModelForm, self).__init__(data, files, auto_id, prefix, initial, error_class, label_suffix, empty_permitted, instance)
+        super().__init__(*args, **kwargs)
         self.fields['body'].widget.attrs['style'] = 'width: 100%;'
         
 

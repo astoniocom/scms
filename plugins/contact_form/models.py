@@ -12,7 +12,7 @@ class ContactForm(SCMSPluginModel):
 
     
 class ContactFormHistory(models.Model):
-    page = models.ForeignKey(Page, blank=False, db_index=True)
+    page = models.ForeignKey(Page, blank=False, db_index=True, on_delete=models.CASCADE)
     alias = models.CharField(_("Sent from page"), max_length=512, blank=True, null=True, db_index=False)
     date = models.DateTimeField(_("Date"), default=datetime.now)
     recipient = models.EmailField(_("E-mail Recipient"))
@@ -25,7 +25,7 @@ class ContactFormHistory(models.Model):
         ordering = ('-date',)
         db_table = "contact_form_contactformhistory"
     
-    def __unicode__(self):
+    def __str__(self):
         return self.body[:84]
     
     def _get_BODY_display(self, field):

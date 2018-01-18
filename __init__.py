@@ -1,2 +1,3 @@
 from scms.sites import SCMSSite, site
-VERSION = '2016.09.06'
+VERSION = '2017.12.26'
+default_app_config = 'scms.apps.SCMSConfig'

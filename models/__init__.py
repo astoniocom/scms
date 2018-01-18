@@ -1,1 +1,1 @@
-from pagemodel import *
+from .pagemodel import *

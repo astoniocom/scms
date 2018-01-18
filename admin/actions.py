@@ -29,8 +29,8 @@ def copy_selected(modeladmin, request, queryset):
     for sd in queryset:
         copy_page(sd)
 
-copy_selected.short_description = "Скопировать выбранные страницы".decode('utf-8')
-#copy_selected.short_description = ugettext_lazy("Copy selected %(verbose_name_plural)s") 
+# copy_selected.short_description = "Скопировать выбранные страницы"
+copy_selected.short_description = ugettext_lazy("Copy selected %(verbose_name_plural)s") 
 # нужено сделать django-admin.py makemessages -l ru
 
 # функция копирования объекта вместе с его полями
@@ -47,7 +47,7 @@ def copy_page(obj):
     obj.tree_id = None
     obj.id = None
     obj.save()
-    obj.authors = old_authors
+    obj.authors.set(old_authors)
     old_slug.page = obj
     old_slug.id = None
     old_slug.slug = ""

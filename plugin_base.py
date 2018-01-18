@@ -70,6 +70,17 @@ class SCMSPluginBase(InlineModelAdmin):
 
     def get_plugin_formset(self, request, obj=None, instance=None, **kwargs):
         # import debug
+        # defaults = {
+        #     'auto_id': self.auto_id,
+        #     'prefix': self.add_prefix(i),
+        #     'error_class': self.error_class,
+        #     # Don't render the HTML 'required' attribute as it may cause
+        #     # incorrect validation for extra, optional, and deleted
+        #     # forms in the formset.
+        #     'use_required_attribute': False,
+        # }
+        # defaults.update(kwargs)
+        
         FormSet = self.get_formset(request, obj, **kwargs)
         language = self.lang_depended and get_language_from_request(request, None) or ''
         FormSet._queryset = self.model.objects.filter(language=language, page=instance, field_name=self.name).order_by('weight') # Фильтр на каком основании брать данные для полей плагина
@@ -117,7 +128,7 @@ class SCMSPluginBase(InlineModelAdmin):
                     val = getattr(value, sub_field.name, None)
                     
                     if not val is None:
-                        val = isinstance(val, unicode) and mark_safe(val) or val 
+                        val = isinstance(val, str) and mark_safe(val) or val 
                     else:
                         val = ""
 

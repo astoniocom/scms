@@ -1,5 +1,6 @@
 # coding=utf-8
-import datetime, scms, mptt, pickle, cPickle, dill, bson
+import datetime, scms, mptt, pickle, dill, bson, re
+import _pickle as cPickle
 from pytils import translit
 from copy import deepcopy
 from datetime import datetime
@@ -11,7 +12,7 @@ from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sitemaps import ping_google
 from django.utils.translation import get_language
-from django.utils.encoding import force_unicode, smart_str
+from django.utils.encoding import force_text, smart_str
 from django.core.cache import cache
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -51,7 +52,7 @@ class FieldData(dict):
     #         #     pass
     #         return super(FieldData, self).__call__(attr)
 
-    def __unicode__(self, *args, **kwargs):
+    def __str__(self, *args, **kwargs):
         var = self.getvalue()
         if isinstance(var, float):
             return "%s" % var
@@ -104,7 +105,7 @@ class Page(models.Model):
         (page_state.SETTINGS, _('Settings page'))
     )
     
-    parent = models.ForeignKey('self', verbose_name=_('Parent'), null=True, blank=True, related_name='children', db_index=True, default=None)
+    parent = models.ForeignKey('self', verbose_name=_('Parent'), null=True, blank=True, related_name='children', db_index=True, default=None,  on_delete=models.CASCADE)
     type   = models.CharField(_("Type"), max_length=16, blank=False, db_index=True)
     weight = models.IntegerField(_("Weight"), blank=False, db_index=True, default=0)
     published = models.BooleanField(_("Published"), default=True, blank=False, db_index=True)
@@ -123,7 +124,7 @@ class Page(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Page, self).__init__(*args, **kwargs)
-        # self.title = self.__unicode__()
+        # self.title = self.__str__()
         # self.title = 'ddd'
         # import debug
         language = None
@@ -152,7 +153,7 @@ class Page(models.Model):
                 self.nchildren = Page.objects.filter(parent=self).aggregate(count=Count('id'))['count']
         # p = Page.objects.filter(pk=self.id, slugs__language='%s' % lang).extra(select=select)[0]        
     
-    def __unicode__(self):
+    def __str__(self):
         try:
             slug = Slugs.objects.get(page=self, language=get_language())
         except Slugs.DoesNotExist:
@@ -206,8 +207,8 @@ class Page(models.Model):
         try:
             from scms.utils import build_page_folder_path
             import os
-            os.makedirs(build_page_folder_path(self.id), 0775)
-        except OSError, (errno, strerror):
+            os.makedirs(build_page_folder_path(self.id), 0o777)
+        except OSError as err:
             pass
 
         return result
@@ -224,23 +225,32 @@ class Page(models.Model):
                 
         super(Page, self).delete(*args, **kwargs)
         
-
+    def get_parents(self):
+        parents = []
+        if getattr(self.page, 'get_ancestors', None):
+            parents = self.page.get_ancestors(ascending=False).filter(slugs__language='%s' % self.lang).extra(select={
+                'title': '`scms_slugs`.`title`', 
+                'alias': 'IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*",""))' % page_state.MAIN,
+                'link': 'CONCAT("%s", IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*","")))' % (self.lang_prefix, page_state.MAIN),
+                'nchildren': 'SELECT COUNT(*) FROM %s as p WHERE p.parent_id = %s.id' % (self._meta.db_table, self._meta.db_table),
+                })
+        return parents
     
     def full_load(self, language=None, request=None, only_cached=True):
         # Нельзя вызывать при создании узла, т.к. не будет возвращать актуальную информацию, т.к. еще нет записи в Slugs
-        # import debug
-        lang = language and language or get_language()
+        lang = language or get_language() or get_default_language()
+        self.lang = lang
         if self.id:
             cid = pagecache_make_cid(self.pk, lang)
-            page = cache.get(cid)
-            
+            self.page = cache.get(cid)
             
             #lang_prefix = (not lang == get_default_language() and not lang == get_language() and) and ('/%s' % lang) or ''
             lang_prefix = (not lang == get_default_language() and getattr(settings, 'SCMS_IS_LANG_LINK', True)) and ('/%s' % lang) or ''
-            
-            if not page:
+            self.lang_prefix = lang_prefix
+
+            if not self.page:
                 try:
-                    page = Page.objects.filter(pk=self.id, slugs__language='%s'%lang).extra(select={
+                    self.page = Page.objects.filter(pk=self.id, slugs__language='%s'%lang).extra(select={
                         'title': '`scms_slugs`.`title`', 
                         'alias': 'IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*",""))' % page_state.MAIN,
                         'link': 'CONCAT("%s", IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*","")))' % (lang_prefix, page_state.MAIN),
@@ -250,15 +260,15 @@ class Page(models.Model):
                 except IndexError:
                     return None
                 # Формирование полей
-                page.fields = OrderedDict()
+                self.page.fields = OrderedDict()
 
                 # Обращаемся к каждому плагину, чтобы тот встраивал данные в контекст, которые кешируются
-                for field_obj in scms.site.get_content_type(page.type).get_fields(page):
+                for field_obj in scms.site.get_content_type(self.page.type).get_fields(self.page):
                     values_lang = field_obj.lang_depended and lang or '' # Определяем язык для получения значений
                     
                     field_data = {}
                     field_data['plugin'] = field_obj
-                    field_data['values'] = field_obj.get_context(page, values_lang) # Получаем значения
+                    field_data['values'] = field_obj.get_context(self.page, values_lang) # Получаем значения
                     if field_data['values']:
                         # пусть из первого поля будут в параметре
                         for k,v in zip(field_data['values'][0], field_data['values'][0].values()):
@@ -269,31 +279,26 @@ class Page(models.Model):
                     
                     field_data['dynamic'] = getattr(field_obj, 'dynamic', False)
                     
-                    setattr(page, field_obj.name, field_data) # Добавляем в атрибуты объекта
-                    page.fields[field_obj.name] = field_data # Добавляем в словарь, чтобы можно было в темплейтах делать перечисление полей
+                    setattr(self.page, field_obj.name, field_data) # Добавляем в атрибуты объекта
+                    self.page.fields[field_obj.name] = field_data # Добавляем в словарь, чтобы можно было в темплейтах делать перечисление полей
 
                 # Формирование родителей
-                parents =  page.get_ancestors(ascending=False).filter(slugs__language='%s' % lang).extra(select={
-                    'title': '`scms_slugs`.`title`', 
-                    'alias': 'IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*",""))' % page_state.MAIN,
-                    'link': 'CONCAT("%s", IF (`scms_page`.`state` = %s, "/", REPLACE(`scms_slugs`.`alias`,"*","")))' % (lang_prefix, page_state.MAIN),
-                    'nchildren': 'SELECT COUNT(*) FROM %s as p WHERE p.parent_id = %s.id' % (self._meta.db_table, self._meta.db_table),
-                    })
-                page.parents = [np for np in parents] + [page]
+                parents =  self.get_parents()
+                self.page.parents = [np for np in parents] + [self.page]
                 
                 # Формирование списка модулей для подгрузки. Сделано с целью оптимизации, чтобы каждый вызов не происходил import_modules
-                page.modules = []
-                for module_name in ['l_%s-%s'%(page.type, self.pk), 'l_%s'%page.type, 'l_common']:
+                self.page.modules = []
+                for module_name in ['l_%s-%s'%(self.page.type, self.pk), 'l_%s' % self.page.type, 'l_common']:
                     try:
                         mod = import_module('pages.' + module_name)
-                        page.modules.append(module_name)
+                        self.page.modules.append(module_name)
                     except ImportError:
                         continue
                 
                 
                 
                 try: #TODO Понимаю, что так не правильно но иначе иногда при сохранении (формировании кеша выскакивает: Can't pickle <type 'function'> или expected string or Unicode object, NoneType found)
-                    cache.set(cid, page, 99999999)
+                    cache.set(cid, self.page, 99999999)
                 except:
                     pass
             
@@ -303,40 +308,41 @@ class Page(models.Model):
 
             if request and hasattr(request, 'scms'):
                 # Определяем активна ли эта страница в данный момент    
-                if request.scms.has_key('cp'):
+                if 'cp' in request.scms:
                     if get_mongo(): 
-                        page.active = (page.id in request.scms['cp'].parents) and 1 or 0
+                        self.page.active = (self.page.id in request.scms['cp'].parents) and 1 or 0
                     else:
-                        page.active = (page.id in [p.id for p in request.scms['cp'].parents]) and 1 or 0
-                    page.super_active = (page.id == request.scms['cp'].id) and 1 or 0
+                        self.page.active = (self.page.id in [p.id for p in request.scms['cp'].parents]) and 1 or 0
+                    self.page.super_active = (self.page.id == request.scms['cp'].id) and 1 or 0
             
             if not only_cached:             
                 # Обращаемся к расширяющим модулям
-                for source in page.modules:
+                for source in self.page.modules:
                     try:
                         mod = import_module('pages.' + source)
                         #try:
                         prepare_func = getattr(mod, 'load')
-                        prepare_func(page, request)
+                        prepare_func(self.page, request)
                         #except AttributeError:
                         #    continue
                     except ImportError:
                         continue
     
                 # Обращаемся к каждому плагину, чтобы тот встраивал данные в контекст, которые не кешируются
-                try:
-                    for field_obj in scms.site.get_content_type(page.type).get_fields(page):
-                        field_obj.modify_page(page, request)    
-                except AttributeError:
-                    pass
+                for field_obj in scms.site.get_content_type(self.page.type).get_fields(self.page):
+                    field_obj.modify_page(self.page, request)    
+                # try:
+                #     pass
+                # except AttributeError:
+                #     pass
 
             # для удобства выборки из объекта
-            for key in page.__dict__:
-                field = getattr(page, key)
+            for key in self.page.__dict__:
+                field = getattr(self.page, key)
                 if isinstance(field, (dict)):
-                    setattr(page, key, FieldData(field))
+                    setattr(self.page, key, FieldData(field))
 
-            return page
+            return self.page
         else:
             # Заглушка, возможно, этот обработчик вообще не нужен
             self.type = 'root' 
@@ -389,7 +395,7 @@ class Page(models.Model):
         if order:
             qs = qs.order_by(*order.split(','))
 
-	lang_prefix = (not lang == get_default_language() and getattr(settings, 'SCMS_IS_LANG_LINK', True)) and ('/%s' % lang) or ''
+        lang_prefix = (not lang == get_default_language() and getattr(settings, 'SCMS_IS_LANG_LINK', True)) and ('/%s' % lang) or ''
         #lang_prefix = (not lang == get_default_language() and not lang == get_language()) and ('/%s' % lang) or ''
 
         qs = qs.extra(select={
@@ -422,7 +428,7 @@ except mptt.AlreadyRegistered:
 
 class Slugs(models.Model):
     title = models.CharField(_("Title"), max_length=255, blank=False, db_index=False, unique=False)
-    page = models.ForeignKey(Page, blank=False, db_index=True)
+    page = models.ForeignKey(Page, blank=False, db_index=True, on_delete=models.CASCADE)
     language = models.CharField(_("Language"), max_length=5, db_index=True)
     slug = models.SlugField(_("Slug"), max_length=255, blank=True, db_index=True, unique=False)
     alias  = models.CharField(_("Alias"), max_length=255, blank=True, null=True, db_index=True)
@@ -430,7 +436,7 @@ class Slugs(models.Model):
         app_label = 'scms'
         unique_together = ("language", "alias")
     
-    def __unicode__(self):
+    def __str__(self):
         return '/%s%s' % (self.language, self.alias.replace("*", ''))
     
         
@@ -478,12 +484,16 @@ class Slugs(models.Model):
                 except Slugs.DoesNotExist:
                     next_slug = str(next_page.id)
                 
-                self.alias = '%s/%s' % (self.alias, next_slug)
+                self.alias = re.sub(r"/{2,}", "/", '%s/%s' % (self.alias, next_slug))
+                if getattr(settings, 'SCMS_SLUG_KEEP_END_SLASH', False):
+                    self.alias += "/"
+                
         else:
             if not self.alias[0] == '/': # Если алиас сгенерирован не автоматически, удостоверяемся, что в начале есть слеш
                 self.alias = '/' + self.alias
-            if self.alias[-1] == '/': # Если алиас сгенерирован не автоматически, удостоверяемся, что в начале есть слеш
-                self.alias = self.alias[0:-1]
+            if not getattr(settings, 'SCMS_SLUG_KEEP_END_SLASH', False):
+                if self.alias[-1] == '/': # Если алиас сгенерирован не автоматически, удостоверяемся, что в конце есть слеш и удаляем
+                    self.alias = self.alias[0:-1]
 
         super(Slugs, self).save(force_insert, force_update, using)
         
@@ -500,8 +510,8 @@ class modict(dict, object):
     def __init__(self, *args, **kwargs):
         super(modict, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
-        return mark_safe(force_unicode(smart_str(self.get('body') or "%s" % self.get('data', "") or self.get('state', ""))))
+    def __str__(self):
+        return mark_safe(force_text(smart_str(self.get('body') or "%s" % self.get('data', "") or self.get('state', ""))))
 
     def pk(self):
         return self.get('id', '')
@@ -521,8 +531,8 @@ class pagedict(dict):
     def __init__(self, *args, **kwargs):
         super(pagedict, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
-        return mark_safe(force_unicode(smart_str(self.get('body') or "%s" % self.get('data') or self.get('state') or "")))
+    def __str__(self):
+        return mark_safe(force_text(smart_str(self.get('body') or "%s" % self.get('data') or self.get('state') or "")))
 
     def pk(self):
         return self.get('pk')
@@ -535,7 +545,7 @@ class MongoManager(object):
     
 
     def safe_value(value):
-        return mark_safe(force_unicode(smart_str(value)))
+        return mark_safe(force_text(smart_str(value)))
     safe_value.is_safe = True
 
     def __init__(self, *args, **kwargs):
@@ -576,7 +586,7 @@ class MongoManager(object):
     #     # return self.get_self()
     #     return "%s" % self.get_self().get('id', "")
 
-    # def __unicode__(self):
+    # def __str__(self):
     #     # return self.get_self()
     #     return "%s" % self.get_self().get('id', "")
 
@@ -648,8 +658,8 @@ class MongoManager(object):
         return self.id
 
     def mark_safe(self, data):
-        if isinstance(data, (unicode, str)):
-            return mark_safe(force_unicode(data))
+        if isinstance(data, (str)):
+            return mark_safe(force_text(data))
         elif isinstance(data, (dict)):
             data = modict(data)
             for key, val in zip(data, data.values()):

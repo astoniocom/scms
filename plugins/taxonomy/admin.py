@@ -1,8 +1,8 @@
 # coding=utf-8
 from django.contrib import admin
-from models import Terms
 from django.forms import widgets
 from django.utils.translation import ugettext as _
+from .models import Terms
 
 class TermsAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'vocabulary', 'language', 'weight')

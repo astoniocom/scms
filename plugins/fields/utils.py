@@ -10,7 +10,7 @@ def get_classplugin_from_str(type_str):
     
     try:
         mod = import_module(p_module)
-    except ImportError, e:
+    except (ImportError, e):
         return None
     
     try:

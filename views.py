@@ -2,12 +2,12 @@
 from django.http import Http404, HttpResponseRedirect, HttpResponseNotFound
 from scms.utils import get_language_from_request
 from scms.models.pagemodel import Slugs, Page, page_state, MongoManager
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.conf import settings
 from scms.utils.i18n import get_default_language
 from scms.utils import get_destination
 from django.utils.translation import ugettext_lazy as _, gettext
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.core.cache import cache
 from django.contrib import messages
 import datetime
@@ -95,7 +95,7 @@ def scms_mongo_render(request, alias=''):
         #     if not pageadmin.has_add_permission(request, parent_page=cp, type=children_name):
         #         continue
         #     scms_links.append({
-        #         'name': _('Create %s') % force_unicode(next_content_type.name),
+        #         'name': _('Create %s') % force_text(next_content_type.name),
         #         'href': '/admin/scms/page/add/?type=%s&parent=%s&destination=%s' % (next_content_type.id, cp.pk, get_destination(request) )                               
         #     })
         # if request.user.is_staff:
@@ -153,7 +153,7 @@ def scms_mongo_render(request, alias=''):
                                    'page-%s.html' % cp.type,
                                    'page-common-%s.html' % lang,
                                    'page-common.html',]
-    response = render_to_response(templates, context, context_instance=RequestContext(request))
+    response = render(request, templates, context)
     
     
     #smart_cache.go(html_cache_fpathname, 0, depended_types=self.depended_types, adition_dependies=self.adition_dependies, delete_callback=None)
@@ -255,7 +255,7 @@ def scms_render(request, alias=''):
             if not pageadmin.has_add_permission(request, parent_page=cp, type=children_name):
                 continue
             scms_links.append({
-                'name': _('Create %s') % force_unicode(next_content_type.name),
+                'name': _('Create %s') % force_text(next_content_type.name),
                 'href': '/admin/scms/page/add/?type=%s&parent=%s&destination=%s' % (next_content_type.id, cp.pk, get_destination(request) )                               
             })
         if request.user.is_staff:
@@ -305,7 +305,7 @@ def scms_render(request, alias=''):
     subtype = request.GET.get('subtype', '')
     
     
-    response = render_to_response(['page-%s-%s-%s-%s.html' % (cp.type, cp.id, lang, subtype),
+    response = render(request, ['page-%s-%s-%s-%s.html' % (cp.type, cp.id, lang, subtype),
                                    'page-%s-%s-%s.html' % (cp.type, cp.id, lang),
                                    'page-%s-%s-%s.html' % (cp.type, cp.id, subtype),
                                    'page-%s-%s.html' % (cp.type, cp.id),
@@ -314,7 +314,7 @@ def scms_render(request, alias=''):
                                    'page-%s-%s.html' % (cp.type, subtype),
                                    'page-%s.html' % cp.type,
                                    'page-common-%s.html' % lang,
-                                   'page-common.html',], context, context_instance=RequestContext(request))
+                                   'page-common.html',], context)
     
     
     #smart_cache.go(html_cache_fpathname, 0, depended_types=self.depended_types, adition_dependies=self.adition_dependies, delete_callback=None)

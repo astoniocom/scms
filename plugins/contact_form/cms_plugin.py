@@ -1,9 +1,9 @@
 # coding=utf-8
-from scms.plugin_base import SCMSPluginBase
-from models import ContactForm, ContactFormHistory
-from forms import FormContactForm
 from django.core.mail import send_mail
 from django.utils.translation import ugettext as _
+from scms.plugin_base import SCMSPluginBase
+from .models import ContactForm, ContactFormHistory
+from .forms import FormContactForm
 
 class ContactFormPlugin(SCMSPluginBase):
     template = 'admin/scms/page/edit_inline/tabular.html'
@@ -42,7 +42,7 @@ class ContactFormPlugin(SCMSPluginBase):
         if not fields:
             return
         
-        if request and request.method == 'POST' and ('%s-send'%self.name in request.POST or hasattr(request, 'contact_process')): #hasattr(request, 'contact_process') чтобы принудительно можно было вызвать обработку, например для ajax прверки
+        if request and request.method == 'POST' and ('%s-send' % self.name in request.POST or hasattr(request, 'contact_process')): #hasattr(request, 'contact_process') чтобы принудительно можно было вызвать обработку, например для ajax прверки
             if not hasattr(request, 'contact_processed_form'):
                 sent_page = hasattr(request, 'scms_page') and request.scms_page or page
                 form =  FormContactForm(request.POST, fields=fields)

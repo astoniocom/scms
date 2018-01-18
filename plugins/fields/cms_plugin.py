@@ -1,11 +1,11 @@
 ﻿# coding: utf-8
-from scms.plugin_base import SCMSPluginBase
-from models import Fields
-from forms import FieldsForm
-from utils import get_classplugin_from_str
-from scms.utils import query_str_to_dict
 import inspect
 from django.utils.datastructures import ImmutableList
+from scms.plugin_base import SCMSPluginBase
+from scms.utils import query_str_to_dict
+from .models import Fields
+from .forms import FieldsForm
+from .utils import get_classplugin_from_str
 
 class FieldsPlugin(SCMSPluginBase):
     form = FieldsForm

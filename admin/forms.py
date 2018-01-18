@@ -16,8 +16,8 @@ def slugify(value):
     and converts spaces to hyphens.
     """
     import unicodedata, re
-    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-    value = unicode(re.sub('[^\.,\/*\w\s-]', '', value).strip().lower()) #TODO разобраться со звездочкой, пропускает из-за использования в качестве 1го символа алиаса
+    # value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+    value = str(re.sub(r'[^\.,\/*\w\s-]', '', value).strip().lower()) #TODO разобраться со звездочкой, пропускает из-за использования в качестве 1го символа алиаса
     SCMS_SLUG = settings.SCMS_SLUG if hasattr(settings, 'SCMS_SLUG') else {}
     pattern = SCMS_SLUG.get('pattern', '[-\s,\.]+')
     change_symbol = SCMS_SLUG.get('change_symbol', '-')

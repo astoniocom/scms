@@ -1,8 +1,8 @@
 # coding=utf-8
-from scms.plugin_base import SCMSPluginBase
-from models import PageSelect
-from forms import PageSelectForm
 import shutil, os 
+from scms.plugin_base import SCMSPluginBase
+from .forms import PageSelectForm
+from .models import PageSelect
 
 
 class PageSelectPlugin(SCMSPluginBase):

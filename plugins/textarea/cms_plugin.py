@@ -1,7 +1,7 @@
-from scms.plugin_base import SCMSPluginBase
-from models import TextArea
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from scms.plugin_base import SCMSPluginBase
+from .models import TextArea
 
 class TextAreaPlugin(SCMSPluginBase):
     model = TextArea

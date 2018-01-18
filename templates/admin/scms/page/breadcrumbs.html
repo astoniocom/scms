@@ -7,7 +7,7 @@
   &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst|escape|custom_app_label }}</a>
   {% for p in breadcrumbs %}
       {% if not forloop.last or add or deletable_objects %}
-        &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}?parent__id__exact={{ p.id }}">{{ p.title }}</a> 
+        &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}?parent__id__exact={{ p.id }}">{{ p.title }}</a>
       {% else %}
         {% if not deleted_objects %}
           &rsaquo; {{ p.title }}

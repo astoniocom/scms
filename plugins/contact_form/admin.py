@@ -1,9 +1,10 @@
 # coding=utf-8
 from django.contrib import admin
-from models import ContactFormHistory
 from django.forms import widgets
+from django.utils.safestring import mark_safe
 from django import forms
 from django.utils.translation import ugettext as _
+from .models import ContactFormHistory
 
 class ContactFormHistoryAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'adminlist_alias', 'recipient', 'date', )
@@ -13,7 +14,7 @@ class ContactFormHistoryAdmin(admin.ModelAdmin):
     declared_fieldsets = ()
 
     def adminlist_alias(self, obj):
-        return '<a href="%s">%s</a>' % (obj.alias, obj.alias) 
+        return mark_safe('<a href="%s">%s</a>' % (obj.alias, obj.alias))
     adminlist_alias.allow_tags = True
     adminlist_alias.short_description = _('Sent from page')
 

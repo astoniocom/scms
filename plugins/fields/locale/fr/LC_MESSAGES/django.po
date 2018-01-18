@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-12-26 12:11+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: .\plugins\fields\models.py:8
+msgid "Name"
+msgstr ""
+
+#: .\plugins\fields\models.py:9
+msgid "Type"
+msgstr ""
+
+#: .\plugins\fields\models.py:10
+msgid "Verbose name"
+msgstr ""
+
+#: .\plugins\fields\models.py:11
+msgid "Extra"
+msgstr ""
+
+#: .\plugins\fields\models.py:12
+msgid "Can order"
+msgstr ""
+
+#: .\plugins\fields\models.py:13
+msgid "Is language depended"
+msgstr ""
+
+#: .\plugins\fields\models.py:14
+msgid "Is can delete"
+msgstr ""
+
+#: .\plugins\fields\models.py:15
+msgid "Max fields"
+msgstr ""
+
+#: .\plugins\fields\models.py:16
+msgid "Extra params"
+msgstr ""
+
+#: .\plugins\fields\models.py:17
+msgid "Filter Type"
+msgstr ""

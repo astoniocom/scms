@@ -1,12 +1,12 @@
 # coding=utf-8
-from models import Fields
+import inspect
 from django import forms
 from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
-from utils import get_classplugin_from_str
 from scms.utils import query_str_to_dict
-import inspect
+from .utils import get_classplugin_from_str
+from .models import Fields
 
 class FieldsForm(forms.ModelForm):
     class Meta:

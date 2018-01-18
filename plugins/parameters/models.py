@@ -23,7 +23,7 @@ class Parameter(models.Model):
         verbose_name_plural = "Параметры"
         ordering = ['weight', 'vocabulary', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class Parameters(SCMSPluginModel):
