@@ -22,7 +22,7 @@ def x_robots_tag(func):
 @x_robots_tag
 def index(request, sitemaps,
           template_name='sitemap_index.xml', content_type='application/xml',
-          sitemap_url_name='scms__sitemap'):
+          sitemap_url_name='scms.sitemaps.views.sitemap'):
 
     req_protocol = request.scheme
     req_site = get_current_site(request)
