@@ -10,6 +10,7 @@ class TermsAdmin(admin.ModelAdmin):
     list_editable = ('weight',)
     readonly_fields = ()
     declared_fieldsets = ()
+    # raw_id_fields = ['Terms']
         
     def get_form(self, request, obj=None, **kwargs):
         form = super(TermsAdmin, self).get_form(request, obj, **kwargs)
