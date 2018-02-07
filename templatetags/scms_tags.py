@@ -30,7 +30,7 @@ class GetpagesNode(Node):
 	def render(self, context):
 		# Определение текущей страницы пагинации
 		if self.page:
-			self.page = self.page.resolve(context, True)
+			self.page = self.page.resolve(context, True) # Если отключен режим дебага для шаблонов, то данная строка вызывает исключение при повторной загрузке страницы
 			self.page = self.page and int(self.page) or 1
 		
 		if isinstance(self.order, FilterExpression):

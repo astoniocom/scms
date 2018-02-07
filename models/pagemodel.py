@@ -371,7 +371,7 @@ class Page(models.Model):
         parents = [str(p.id) for p in cp.parents]
        
         lang = language and language or get_language()
-        qs = Page.objects.filter(slugs__language='%s'%lang, published=1 ).exclude(state__in=[page_state.EXTRAHIDDEN, page_state.IN_TRASH, page_state.SETTINGS])
+        qs = Page.objects.filter(slugs__language='%s' % lang, published=1 ).exclude(state__in=[page_state.EXTRAHIDDEN, page_state.IN_TRASH, page_state.SETTINGS])
     
         # маркер, если не включать скрытые. По умолчанию не включать
         notshowhidden = True
