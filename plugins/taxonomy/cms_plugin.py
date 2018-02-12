@@ -33,7 +33,7 @@ class TaxonomyPlugin(SCMSPluginBase):
         super(TaxonomyPlugin, self).__init__(name, verbose_name, verbose_name_plural, form, formset, extra, can_order, lang_depended, can_delete, max_num, template, filter_type, show_weight)
 
     def get_filters(self, page, lang, request):
-        if self.filter_type:
+        if self.filter_type and hasattr(request, 'REQUEST'):
             get = dict(request.REQUEST.items())
             
             getvar = 'taxonomy__terms__and___%s' % self.name
