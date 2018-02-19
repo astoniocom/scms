@@ -247,7 +247,6 @@ class Page(models.Model):
             #lang_prefix = (not lang == get_default_language() and not lang == get_language() and) and ('/%s' % lang) or ''
             lang_prefix = (not lang == get_default_language() and getattr(settings, 'SCMS_IS_LANG_LINK', True)) and ('/%s' % lang) or ''
             self.lang_prefix = lang_prefix
-
             if not self.page:
                 try:
                     self.page = Page.objects.filter(pk=self.id, slugs__language='%s'%lang).extra(select={

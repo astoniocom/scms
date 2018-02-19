@@ -28,7 +28,23 @@ def has_lang_prefix(path):
         return False
 
 class MultilingualURLMiddleware:
-    def get_language_from_request (self,request):
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # One-time configuration and initialization.
+
+    def __call__(self, request):
+        # Code to be executed for each request before
+        # the view (and later middleware) are called.
+        
+        response = self.get_response(request)
+
+        # Code to be executed for each request/response after
+        # the view is called.
+
+        return response
+
+    def get_language_from_request(self, request):
         lang = None
         changed = False
         prefix = has_lang_prefix(request.path_info)
@@ -59,13 +75,30 @@ class MultilingualURLMiddleware:
         if not lang:
             lang = get_default_language()
         return lang
-    
-    def process_request(self, request):
+
+    def process_view(self, request, view_func, *args, **kwargs):
+        '''
+        Old function name
+        def process_request(self, request):
+        '''
+
+        domain = request.META.get('HTTP_HOST')
+
         language = self.get_language_from_request(request)
+       
         translation.activate(language)
-        dd = translation.get_language()
-        request.LANGUAGE_CODE = language #translation.get_language()
-        #w=1/0
+        request.LANGUAGE_CODE = language
+
+        if len(args[0]) > 0 and args[0][0].startswith("%s" % language):
+            args = ["/".join(request.path.split("/")[2:])]
+            return view_func(request, *args, **kwargs)
+        
+    # def process_request(self, request):
+    #     language = self.get_language_from_request(request)
+    #     translation.activate(language)
+    #     dd = translation.get_language()
+    #     request.LANGUAGE_CODE = language #translation.get_language()
+    #     #w=1/0
 
     def process_response(self, request, response):
         patch_vary_headers(response, ("Accept-Language",))
