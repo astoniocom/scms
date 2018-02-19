@@ -27,7 +27,7 @@ class Parameter(models.Model):
         return self.name
 
 class Parameters(SCMSPluginModel):
-    parameter = models.ForeignKey(Parameter, verbose_name="Параметр", blank=False, related_name='parameters')
+    parameter = models.ForeignKey(Parameter, verbose_name="Параметр", blank=False, related_name='parameters', on_delete=models.CASCADE)
     value = models.CharField("Значение", max_length=256, blank=False, null=False, db_index=True )
     # weight = models.IntegerField("Вес", max_length=256, blank=False, null=False, db_index=True)
 
@@ -49,8 +49,8 @@ class Color(models.Model):
         verbose_name_plural = "Цвета"
         ordering = ['name']
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class Colors(SCMSPluginModel):
-    color = models.ForeignKey('Color', verbose_name="Цвет", blank=True, null=True)
+    color = models.ForeignKey('Color', verbose_name="Цвет", blank=True, null=True, on_delete=models.CASCADE)
