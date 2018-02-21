@@ -110,10 +110,11 @@ class PageAdmin(admin.ModelAdmin):
             path('<path:object_id>/history/', wrap(self.history_view), name='%s_%s_history' % info),
             path('<path:object_id>/delete/', wrap(self.delete_view), name='%s_%s_delete' % info),
             path('<path:object_id>/change/', wrap(self.change_view), name='%s_%s_change' % info),
+            path('<path:object_id>/', wrap(self.change_view), name='%s_%s_change' % info),
             # For backwards compatibility (was the change url before 1.9)
-            path('<path:object_id>/', wrap(RedirectView.as_view(
-                pattern_name='%s:%s_%s_change' % ((self.admin_site.name,) + info)
-            ))),
+            # path('<path:object_id>/', wrap(RedirectView.as_view(
+            #     pattern_name='%s:%s_%s_change' % ((self.admin_site.name,) + info)
+            # ))),
         ]
         return urlpatterns
     
@@ -349,6 +350,12 @@ class PageAdmin(admin.ModelAdmin):
         )
 
         context = self.update_language_tab_context(request, None, context)
+
+        extra_context = self.update_language_tab_context(request, None, extra_context)
+        extra_context['destination'] = request.GET.get('destination', None)
+        form_url = form_url
+        # extra_context['breadcrumbs'] = self.model(id=parent_id).full_load(tab_language).parents
+
         context.update(extra_context or {})
 
         return self.render_change_form(request, context, change=True, obj=obj, form_url=form_url)
@@ -658,7 +665,7 @@ class PageAdmin(admin.ModelAdmin):
             # import debug
             links.append('<nobr><a href="%s" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a></nobr>' % (view_link, _('View'), urljoin(settings.STATIC_URL, 'scms/icons/view.png'), _('View')) )
             #if self.has_change_permission(self._request, obj): # не проверяем разрешения, чтобы не создавать нагрузку на БД. в противном случае раскомментировать
-            links.append(u'<nobr><a href="%s/%s" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a></nobr>' % (obj.id, destination, _('Edit'), urljoin(settings.STATIC_URL, 'scms/icons/edit.png'), _('Edit')) )
+            links.append(u'<nobr><a href="%s/change/%s" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a></nobr>' % (obj.id, destination, _('Edit'), urljoin(settings.STATIC_URL, 'scms/icons/edit.png'), _('Edit')) )
         elif self._request.GET.get('parent_type', '__none_type__') in parent_content_type.children or not self._request.GET.get('parent_type'): # Второе условия на случай необходимости выбора страницы из другой модели/приложения
                 links.append( u'<nobr><a href="#" onclick="opener.dismissRelatedLookupPopup(window, %s); return false;" title="%s"><img src="%s" style="width: 16px; height: 16px; margin: 0px 4px 0px 4px;">%s</a>' % (obj.id, _('Select'), urljoin(settings.STATIC_URL, 'scms/icons/choise.png'), _('Select')) )
         # import debug
