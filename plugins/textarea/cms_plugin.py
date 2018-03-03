@@ -20,11 +20,12 @@ class TextAreaPlugin(SCMSPluginBase):
                  template = None,
                  filter_type = None,
                  show_weight = False,
-                 rows = 10,):
+                 rows = 10, *args, **kwargs):
+
         self.rows = rows
-        super(TextAreaPlugin, self).__init__(name, verbose_name, verbose_name_plural, form, formset, extra, can_order, lang_depended, can_delete, max_num, template, filter_type, show_weight)
+        super(TextAreaPlugin, self).__init__(name, verbose_name, verbose_name_plural, form, formset, extra, can_order, lang_depended, can_delete, max_num, template, filter_type, show_weight, *args, **kwargs)
    
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'body':
-            return forms.CharField(label=_("Text"), widget=forms.Textarea({'rows': self.rows, 'style': "width: 100%"}), required=False)
+            return forms.CharField(label=_("Text"), help_text=self.help_text, widget=forms.Textarea({'placeholder': self.placeholder, 'rows': self.rows, 'style': "width: 100%"}), required=False)
         return super(TextAreaPlugin, self).formfield_for_dbfield(db_field, **kwargs)

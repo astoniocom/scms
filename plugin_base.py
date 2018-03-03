@@ -23,7 +23,7 @@ class SCMSPluginBase(InlineModelAdmin):
                  max_num=1, 
                  template = None,
                  filter_type = None,
-                 show_weight = False):
+                 show_weight = False, *args, **kwargs):
 
         if form:
             self.form = form
@@ -36,7 +36,7 @@ class SCMSPluginBase(InlineModelAdmin):
         else:
             if not self.formset:
                 self.formset = BaseInlineFormSet
-                
+        
         if template:
             self.template = template
         else:
@@ -67,6 +67,9 @@ class SCMSPluginBase(InlineModelAdmin):
             pass
         else:
             self.exclude = self.exclude and self.exclude+['weight'] or ['weight']
+
+        self.placeholder = kwargs.get("placeholder", "")
+        self.help_text = kwargs.get("help_text", "")
 
     def get_plugin_formset(self, request, obj=None, instance=None, **kwargs):
         # import debug
@@ -101,7 +104,8 @@ class SCMSPluginBase(InlineModelAdmin):
         else:
             formset = FormSet(instance=instance, prefix=self.name)
         
-
+        # Добавим help_text, если он указан в плагине
+        formset.help_text = self.help_text
         return formset
       
     def init(self, parent_model, admin_site):
@@ -144,7 +148,6 @@ class SCMSPluginBase(InlineModelAdmin):
                 key = key+1
         except self.model.DoesNotExist:
             pass
-        
         return results
     
     def modify_page(self, page, request=None, language=None):

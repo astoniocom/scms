@@ -11,6 +11,6 @@ class TextAreaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         
         super(TextAreaForm, self).__init__(*args, **kwargs)
-        self.base_fields['body'] = self.fields['body'] = forms.CharField(label=_("Text"), widget=forms.Textarea({'rows': self.rows, 'style': "width: 100%"}), required=False)
+        self.base_fields['body'] = self.fields['body'] = forms.CharField(label=_("Text"), help_text="asfasdf", widget=forms.Textarea({'rows': self.rows, 'style': "width: 100%"}), required=False)
 
 
