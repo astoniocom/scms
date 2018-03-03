@@ -90,7 +90,7 @@ class MultilingualURLMiddleware:
         request.LANGUAGE_CODE = language
 
         if len(args[0]) > 0 and args[0][0].startswith("%s" % language):
-            args = ["/".join(request.path.split("/")[2:])]
+            args = ["/".join(request.path.split("/")[1:])]
             return view_func(request, *args, **kwargs)
         
     # def process_request(self, request):
